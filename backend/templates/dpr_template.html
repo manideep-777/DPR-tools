@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ project_name }} - Detailed Project Report</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1in 0.75in;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 12pt;
+            line-height: 1.6;
+            color: #000;
+        }
+        
+        .cover-page {
+            text-align: center;
+            padding: 100px 50px;
+            page-break-after: always;
+        }
+        
+        .cover-title {
+            font-size: 28pt;
+            font-weight: bold;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            border-top: 3px solid #000;
+            border-bottom: 3px solid #000;
+            padding: 20px 0;
+        }
+        
+        .cover-subtitle {
+            font-size: 20pt;
+            margin: 30px 0;
+        }
+        
+        .cover-info {
+            font-size: 14pt;
+            margin: 20px 0;
+            text-align: left;
+            padding-left: 100px;
+        }
+        
+        h1 {
+            font-size: 18pt;
+            font-weight: bold;
+            margin: 30px 0 15px 0;
+            text-transform: uppercase;
+            border-bottom: 2px solid #000;
+            padding-bottom: 5px;
+        }
+        
+        h2 {
+            font-size: 14pt;
+            font-weight: bold;
+            margin: 20px 0 10px 0;
+        }
+        
+        h3 {
+            font-size: 12pt;
+            font-weight: bold;
+            margin: 15px 0 8px 0;
+        }
+        
+        p {
+            margin: 10px 0;
+            text-align: justify;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        table, th, td {
+            border: 1px solid #000;
+        }
+        
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            padding: 10px;
+            text-align: left;
+        }
+        
+        td {
+            padding: 8px;
+        }
+        
+        .section {
+            margin: 20px 0;
+            page-break-inside: avoid;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .info-item {
+            padding: 5px 0;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            display: inline-block;
+            width: 200px;
+        }
+        
+        ul, ol {
+            margin: 10px 0 10px 30px;
+        }
+        
+        li {
+            margin: 5px 0;
+        }
+        
+        .highlight-box {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .swot-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .swot-box {
+            border: 2px solid #000;
+            padding: 15px;
+            min-height: 150px;
+        }
+        
+        .swot-title {
+            font-weight: bold;
+            font-size: 14pt;
+            margin-bottom: 10px;
+            text-align: center;
+            background-color: #e0e0e0;
+            padding: 5px;
+        }
+        
+        .amount {
+            font-weight: bold;
+            color: #006600;
+        }
+        
+        .page-break {
+            page-break-after: always;
+        }
+        
+        .footer-note {
+            font-size: 10pt;
+            font-style: italic;
+            margin-top: 30px;
+            padding-top: 10px;
+            border-top: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <!-- Cover Page -->
+    <div class="cover-page">
+        <div class="cover-title">
+            DETAILED PROJECT REPORT
+        </div>
+        <div class="cover-subtitle">
+            {{ project_name }}
+        </div>
+        <div class="cover-subtitle">
+            Under MSE-CDP (MSME Cluster Development Programme)
+        </div>
+        <div class="cover-info">
+            <p><strong>Cluster Name:</strong> {{ cluster_name }}</p>
+            <p><strong>Sector:</strong> {{ sector }}</p>
+            <p><strong>Location:</strong> {{ location }}</p>
+            <p><strong>SPV Name:</strong> {{ spv_name }}</p>
+            <p><strong>Diagnostic Agency:</strong> {{ diagnostic_agency }}</p>
+            <p><strong>Date:</strong> {{ generated_date }}</p>
+        </div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="section">
+        <h1>1. EXECUTIVE SUMMARY</h1>
+        <p>{{ project_description }}</p>
+        
+        <div class="highlight-box">
+            <h3>Key Project Parameters</h3>
+            <table>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td>Total Project Cost</td>
+                    <td class="amount">₹{{ "{:,.2f}".format(investment_amount) }}</td>
+                </tr>
+                <tr>
+                    <td>Government Grant ({{ grant_percentage }}%)</td>
+                    <td class="amount">₹{{ "{:,.2f}".format(government_grant) }}</td>
+                </tr>
+                <tr>
+                    <td>Beneficiary Contribution</td>
+                    <td class="amount">₹{{ "{:,.2f}".format(beneficiary_contribution) }}</td>
+                </tr>
+                <tr>
+                    <td>Employment Generation</td>
+                    <td>{{ employment }} jobs</td>
+                </tr>
+                <tr>
+                    <td>Project Duration</td>
+                    <td>{{ project_duration_months }} months</td>
+                </tr>
+                <tr>
+                    <td>Number of Units</td>
+                    <td>{{ number_of_units }}</td>
+                </tr>
+                <tr>
+                    <td>Number of Workers</td>
+                    <td>{{ number_of_workers }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- Cluster Profile -->
+    <div class="section">
+        <h1>2. CLUSTER PROFILE</h1>
+        
+        <h2>2.1 Cluster Overview</h2>
+        <div class="info-item">
+            <span class="info-label">Cluster Name:</span> {{ cluster_name }}
+        </div>
+        <div class="info-item">
+            <span class="info-label">Location:</span> {{ location }}
+        </div>
+        <div class="info-item">
+            <span class="info-label">Sector:</span> {{ sector }}
+        </div>
+        <div class="info-item">
+            <span class="info-label">Number of Units:</span> {{ number_of_units }}
+        </div>
+        <div class="info-item">
+            <span class="info-label">Total Workers:</span> {{ number_of_workers }}
+        </div>
+        
+        <h2>2.2 SPV Details</h2>
+        <div class="info-item">
+            <span class="info-label">SPV Name:</span> {{ spv_name }}
+        </div>
+        <div class="info-item">
+            <span class="info-label">Diagnostic Agency:</span> {{ diagnostic_agency }}
+        </div>
+    </div>
+
+    <!-- SWOT Analysis -->
+    <div class="section">
+        <h1>3. SWOT ANALYSIS</h1>
+        
+        <div class="swot-grid">
+            <div class="swot-box">
+                <div class="swot-title">STRENGTHS</div>
+                <ul>
+                    {% for strength in strengths %}
+                    <li>{{ strength }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div class="swot-box">
+                <div class="swot-title">WEAKNESSES</div>
+                <ul>
+                    {% for weakness in weaknesses %}
+                    <li>{{ weakness }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div class="swot-box">
+                <div class="swot-title">OPPORTUNITIES</div>
+                <ul>
+                    {% for opportunity in opportunities %}
+                    <li>{{ opportunity }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div class="swot-box">
+                <div class="swot-title">THREATS</div>
+                <ul>
+                    {% for threat in threats %}
+                    <li>{{ threat }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- Market Analysis -->
+    <div class="section">
+        <h1>4. MARKET ANALYSIS</h1>
+        
+        <h2>4.1 Market Size and Potential</h2>
+        <p><strong>Market Size:</strong> {{ market_size }}</p>
+        
+        <h2>4.2 Target Customers</h2>
+        <ul>
+            {% for customer in target_customers %}
+            <li>{{ customer }}</li>
+            {% endfor %}
+        </ul>
+        
+        <h2>4.3 Competition Analysis</h2>
+        <p>{{ competition }}</p>
+        
+        <h2>4.4 Market Opportunities</h2>
+        <ul>
+            {% for opportunity in market_opportunities %}
+            <li>{{ opportunity }}</li>
+            {% endfor %}
+        </ul>
+        
+        <h2>4.5 Market Challenges</h2>
+        <ul>
+            {% for challenge in market_challenges %}
+            <li>{{ challenge }}</li>
+            {% endfor %}
+        </ul>
+        
+        <h2>4.6 Market Trends</h2>
+        <ul>
+            {% for trend in market_trends %}
+            <li>{{ trend }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- Interventions -->
+    <div class="section">
+        <h1>5. PROPOSED INTERVENTIONS</h1>
+        
+        <h2>5.1 Hard Interventions</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>S.No.</th>
+                    <th>Intervention</th>
+                    <th>Description</th>
+                    <th>Estimated Cost (₹)</th>
+                    <th>Timeline</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for intervention in hard_interventions %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ intervention.name }}</td>
+                    <td>{{ intervention.description }}</td>
+                    <td class="amount">{{ "{:,.2f}".format(intervention.estimated_cost) }}</td>
+                    <td>{{ intervention.timeline }}</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="3"><strong>Total Hard Interventions</strong></td>
+                    <td class="amount"><strong>{{ "{:,.2f}".format(total_hard_cost) }}</strong></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h2>5.2 Soft Interventions</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>S.No.</th>
+                    <th>Intervention</th>
+                    <th>Description</th>
+                    <th>Estimated Cost (₹)</th>
+                    <th>Timeline</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for intervention in soft_interventions %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ intervention.name }}</td>
+                    <td>{{ intervention.description }}</td>
+                    <td class="amount">{{ "{:,.2f}".format(intervention.estimated_cost) }}</td>
+                    <td>{{ intervention.timeline }}</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="3"><strong>Total Soft Interventions</strong></td>
+                    <td class="amount"><strong>{{ "{:,.2f}".format(total_soft_cost) }}</strong></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="highlight-box">
+            <h3>Total Intervention Cost: <span class="amount">₹{{ "{:,.2f}".format(total_intervention_cost) }}</span></h3>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- Financial Analysis -->
+    <div class="section">
+        <h1>6. FINANCIAL ANALYSIS</h1>
+        
+        <h2>6.1 Project Cost and Funding</h2>
+        <table>
+            <tr>
+                <th>Component</th>
+                <th>Amount (₹)</th>
+                <th>Percentage</th>
+            </tr>
+            <tr>
+                <td>Total Project Cost</td>
+                <td class="amount">{{ "{:,.2f}".format(investment_amount) }}</td>
+                <td>100%</td>
+            </tr>
+            <tr>
+                <td>Government Grant (MSE-CDP)</td>
+                <td class="amount">{{ "{:,.2f}".format(government_grant) }}</td>
+                <td>{{ grant_percentage }}%</td>
+            </tr>
+            <tr>
+                <td>Beneficiary Contribution</td>
+                <td class="amount">{{ "{:,.2f}".format(beneficiary_contribution) }}</td>
+                <td>{{ 100 - grant_percentage }}%</td>
+            </tr>
+            {% if loan_amount > 0 %}
+            <tr>
+                <td>Loan Amount</td>
+                <td class="amount">{{ "{:,.2f}".format(loan_amount) }}</td>
+                <td>{{ "{:.2f}".format((loan_amount / investment_amount) * 100) }}%</td>
+            </tr>
+            {% endif %}
+        </table>
+        
+        <h2>6.2 Five-Year Financial Projections</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Year</th>
+                    <th>Revenue (₹)</th>
+                    <th>Expenses (₹)</th>
+                    <th>Net Profit (₹)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for year in projection_years %}
+                <tr>
+                    <td>Year {{ year.year }}</td>
+                    <td class="amount">{{ "{:,.2f}".format(year.revenue) }}</td>
+                    <td>{{ "{:,.2f}".format(year.expenses) }}</td>
+                    <td class="amount">{{ "{:,.2f}".format(year.profit) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <h2>6.3 Financial Viability Metrics</h2>
+        <div class="highlight-box">
+            <table>
+                <tr>
+                    <th>Metric</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td>Net Present Value (NPV)</td>
+                    <td class="amount">₹{{ "{:,.2f}".format(npv) }}</td>
+                </tr>
+                <tr>
+                    <td>Internal Rate of Return (IRR)</td>
+                    <td class="amount">{{ irr }}</td>
+                </tr>
+                <tr>
+                    <td>Break-Even Period</td>
+                    <td class="amount">{{ break_even }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- Implementation Timeline -->
+    <div class="section">
+        <h1>7. IMPLEMENTATION TIMELINE</h1>
+        
+        {% if implementation_timeline %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Phase</th>
+                    <th>Activities</th>
+                    <th>Duration</th>
+                    <th>Responsible Agency</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for phase in implementation_timeline %}
+                <tr>
+                    <td>{{ phase.phase }}</td>
+                    <td>{{ phase.activities }}</td>
+                    <td>{{ phase.duration }}</td>
+                    <td>{{ phase.responsible }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>Total Project Duration: <strong>{{ project_duration_months }} months</strong></p>
+        {% endif %}
+    </div>
+
+    <!-- Key Performance Indicators -->
+    <div class="section">
+        <h1>8. KEY PERFORMANCE INDICATORS (KPIs)</h1>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>S.No.</th>
+                    <th>Indicator</th>
+                    <th>Baseline</th>
+                    <th>Target (Year 3)</th>
+                    <th>Measurement Method</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for kpi in kpis %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ kpi.indicator }}</td>
+                    <td>{{ kpi.baseline }}</td>
+                    <td>{{ kpi.target }}</td>
+                    <td>{{ kpi.measurement }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- Sustainability Plan -->
+    <div class="section">
+        <h1>9. SUSTAINABILITY PLAN</h1>
+        
+        {% if sustainability_plan %}
+        <h2>9.1 Revenue Model</h2>
+        <p>{{ sustainability_plan.revenue_model }}</p>
+        
+        <h2>9.2 Maintenance Strategy</h2>
+        <p>{{ sustainability_plan.maintenance_strategy }}</p>
+        
+        <h2>9.3 Exit Strategy</h2>
+        <p>{{ sustainability_plan.exit_strategy }}</p>
+        {% else %}
+        <p>The project ensures long-term sustainability through continuous market engagement, 
+        quality improvement initiatives, and capacity building programs for cluster members.</p>
+        {% endif %}
+    </div>
+
+    <!-- Conclusion -->
+    <div class="section">
+        <h1>10. CONCLUSION</h1>
+        <p>
+            This Detailed Project Report outlines a comprehensive plan for the development of 
+            {{ cluster_name }} under the MSME Cluster Development Programme (MSE-CDP). The project 
+            demonstrates strong financial viability with an NPV of ₹{{ "{:,.2f}".format(npv) }} and 
+            IRR of {{ irr }}, indicating healthy returns on investment.
+        </p>
+        <p>
+            The proposed interventions address critical gaps identified in the SWOT analysis and 
+            are designed to enhance the competitiveness of the cluster. With government support of 
+            {{ grant_percentage }}% and active participation from {{ number_of_units }} units employing 
+            {{ number_of_workers }} workers, the project is well-positioned for success.
+        </p>
+        <p>
+            The implementation timeline of {{ project_duration_months }} months is realistic and achievable, 
+            with clear KPIs for monitoring progress. The sustainability plan ensures that benefits 
+            continue beyond the project period, creating lasting impact for the MSME sector.
+        </p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-note">
+        <p>
+            <strong>Note:</strong> This DPR has been prepared in accordance with MSE-CDP guidelines 
+            and is subject to approval by the Ministry of MSME, Government of India.
+        </p>
+        <p>
+            Generated on: {{ generated_date }} at {{ generated_time }}
+        </p>
+    </div>
+</body>
+</html>

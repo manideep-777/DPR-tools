@@ -1,0 +1,174 @@
+// Prisma Schema for MSME DPR Generator
+// Database: PostgreSQL
+
+generator client {
+  provider                    = "prisma-client-py"
+  interface                   = "asyncio"
+  recursive_type_depth        = 5
+  enable_experimental_decimal = true
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== USER MANAGEMENT ====================
+
+model User {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  username      String    @unique
+  password_hash String
+  full_name     String?
+  phone         String?
+  role          UserRole  @default(USER)
+  is_active     Boolean   @default(true)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  
+  // Relations
+  dprs          DPR[]
+  sessions      Session[]
+  
+  @@map("users")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  CONSULTANT
+}
+
+model Session {
+  id            Int       @id @default(autoincrement())
+  user_id       Int
+  token         String    @unique
+  expires_at    DateTime
+  created_at    DateTime  @default(now())
+  
+  user          User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  
+  @@map("sessions")
+}
+
+// ==================== DPR MANAGEMENT ====================
+
+model DPR {
+  id                  Int       @id @default(autoincrement())
+  user_id             Int
+  project_name        String
+  sector              String
+  subsector           String?
+  location            String
+  investment_amount   Decimal   @db.Decimal(15, 2)
+  loan_amount         Decimal?  @db.Decimal(15, 2)
+  employment          Int?
+  
+  // Cluster-Specific Fields
+  cluster_name        String?
+  number_of_units     Int?
+  number_of_workers   Int?
+  spv_name            String?
+  diagnostic_agency   String?
+  
+  // Project Details
+  project_description String    @db.Text
+  products_services   Json?
+  market_analysis     Json?
+  
+  // SWOT Analysis
+  swot_analysis       Json?     // {strengths: [], weaknesses: [], opportunities: [], threats: []}
+  
+  // Interventions
+  hard_interventions  Json?     // [{name, description, cost, timeline}]
+  soft_interventions  Json?     // [{name, description, cost, timeline}]
+  
+  // Financial Data
+  financial_projections Json?   // 5-year detailed projections
+  cost_breakdown       Json?
+  revenue_projections  Json?
+  government_grant     Decimal?  @db.Decimal(15, 2)
+  beneficiary_contribution Decimal? @db.Decimal(15, 2)
+  grant_percentage     Decimal?  @db.Decimal(5, 2)
+  npv                  Decimal?  @db.Decimal(15, 2)
+  irr                  Decimal?  @db.Decimal(5, 2)
+  break_even_months    Int?
+  
+  // Implementation
+  implementation_timeline Json?  // [{phase, activity, start_date, end_date, responsible}]
+  project_duration_months Int?
+  
+  // Monitoring & KPIs
+  kpis                Json?      // [{indicator, baseline, year1_target, year2_target, ...}]
+  
+  // Sustainability
+  sustainability_plan Json?      // {revenue_model, maintenance_strategy, exit_strategy}
+  
+  // Status & Files
+  status              DPRStatus @default(DRAFT)
+  pdf_path            String?
+  ai_suggestions      Json?
+  
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+  
+  // Relations
+  user                User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  versions            DPRVersion[]
+  
+  @@map("dprs")
+}
+
+enum DPRStatus {
+  DRAFT
+  GENERATED
+  REVIEWED
+  APPROVED
+  REJECTED
+}
+
+model DPRVersion {
+  id          Int       @id @default(autoincrement())
+  dpr_id      Int
+  version     Int
+  content     Json
+  pdf_path    String?
+  created_at  DateTime  @default(now())
+  
+  dpr         DPR       @relation(fields: [dpr_id], references: [id], onDelete: Cascade)
+  
+  @@unique([dpr_id, version])
+  @@map("dpr_versions")
+}
+
+// ==================== SECTOR TEMPLATES ====================
+
+model SectorTemplate {
+  id              Int       @id @default(autoincrement())
+  sector_name     String    @unique
+  subsectors      String[]
+  template_data   Json
+  benchmarks      Json?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+  
+  @@map("sector_templates")
+}
+
+// ==================== GOVERNMENT SCHEMES ====================
+
+model GovernmentScheme {
+  id              Int       @id @default(autoincrement())
+  scheme_name     String
+  ministry        String
+  eligibility     Json
+  benefits        Json
+  documentation   Json?
+  is_active       Boolean   @default(true)
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+  
+  @@map("government_schemes")
+}
+
