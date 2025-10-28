@@ -15,6 +15,7 @@ from models.auth_models import (
     ErrorResponse
 )
 from utils.auth_utils import hash_password, verify_password, create_access_token
+from middleware.auth import get_current_user, CurrentUser
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -188,4 +189,29 @@ async def health_check():
         "status": "healthy",
         "service": "authentication",
         "timestamp": datetime.utcnow().isoformat()
+    }
+
+
+@router.get(
+    "/me",
+    summary="Get current user",
+    description="Get the current authenticated user's information"
+)
+async def get_me(current_user: CurrentUser = Depends(get_current_user)):
+    """
+    Protected endpoint - requires valid JWT token
+    Returns the current user's profile information
+    
+    This endpoint demonstrates the JWT authentication middleware
+    """
+    return {
+        "success": True,
+        "user": {
+            "id": current_user.id,
+            "email": current_user.email,
+            "full_name": current_user.full_name,
+            "phone": current_user.phone,
+            "business_type": current_user.business_type,
+            "state": current_user.state
+        }
     }

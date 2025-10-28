@@ -159,7 +159,7 @@
         "dependencies": [
           5
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -167,7 +167,7 @@
             "description": "Create the basic structure for the JWT authentication middleware using FastAPI's dependency injection system.",
             "dependencies": [],
             "details": "Define a class or function that will act as the middleware. Register the middleware with FastAPI to intercept requests. Handle basic request/response flow.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": null
           },
           {
@@ -178,7 +178,7 @@
               1
             ],
             "details": "Check for the presence of the `Authorization` header. Extract the token string, removing the 'Bearer ' prefix if present. Handle cases where the header is missing or malformed.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Send requests with and without the Authorization header. Verify that the token is extracted correctly or an appropriate error is raised."
           },
           {
@@ -189,7 +189,7 @@
               2
             ],
             "details": "Use a JWT library (e.g., `python-jose`) to decode and verify the token signature. Compare the token's expiry time with the current time. Handle invalid signatures and expired tokens.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Create valid, invalid, and expired JWT tokens. Send requests with each type of token and verify that the verification logic works correctly."
           },
           {
@@ -200,7 +200,7 @@
               3
             ],
             "details": "Extract the user ID from the decoded JWT token. Add the user ID to the request state or context so that it can be accessed by subsequent handlers. Handle cases where the token does not contain a user ID.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Send a request with a valid JWT token. Verify that the user ID is added to the request context and can be accessed by a downstream handler."
           }
         ]
@@ -1081,7 +1081,7 @@
     ],
     "metadata": {
       "created": "2025-10-28T08:08:47.483Z",
-      "updated": "2025-10-28T10:14:44.514Z",
+      "updated": "2025-10-28T10:22:41.155Z",
       "description": "Tasks for master context"
     }
   }
