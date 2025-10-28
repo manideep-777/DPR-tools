@@ -1,0 +1,37 @@
+# Task ID: 4
+# Title: Implement user registration API endpoint
+# Status: pending
+# Dependencies: 2, 3
+# Priority: high
+# Description: Create the `/auth/register` endpoint in the FastAPI backend to allow new users to create accounts. Hash passwords using bcrypt before storing them in the database.
+# Details:
+Implement the endpoint using FastAPI. Validate user input (name, email, phone, password, business type, state). Hash the password using bcrypt. Store the user data in the `users` table using Prisma. Return a success message or error if registration fails.
+
+# Test Strategy:
+Send a POST request to `/auth/register` with valid user data. Verify that the user account is created in the database with the hashed password. Ensure that appropriate error messages are returned for invalid input or registration failures.
+
+# Subtasks:
+## 1. Implement the /auth/register FastAPI endpoint [pending]
+### Dependencies: None
+### Description: Create the /auth/register endpoint using FastAPI to handle user registration requests.
+### Details:
+Define the route, request body (Pydantic model), and response structure for the /auth/register endpoint in FastAPI. Handle incoming requests and call validation and database storage functions.
+
+## 2. Validate user input [pending]
+### Dependencies: 4.1
+### Description: Validate user input (name, email, phone, password, business type, state) to ensure data integrity.
+### Details:
+Implement input validation using Pydantic models and custom validation functions. Check for required fields, valid email format, strong password, and allowed values for business type and state.
+
+## 3. Hash the password using bcrypt [pending]
+### Dependencies: 4.2
+### Description: Hash the user's password using bcrypt before storing it in the database for security.
+### Details:
+Use the bcrypt library to hash the password. Generate a salt and hash the password with the salt. Store the hashed password in the database.
+
+## 4. Store the user data in the database [pending]
+### Dependencies: 4.3
+### Description: Store the validated user data, including the hashed password, in the `users` table using Prisma.
+### Details:
+Use Prisma to create a new record in the `users` table with the validated user data and the hashed password. Handle potential database errors.
+

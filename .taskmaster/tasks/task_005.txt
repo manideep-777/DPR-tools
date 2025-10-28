@@ -1,0 +1,11 @@
+# Task ID: 5
+# Title: Implement user login API endpoint
+# Status: pending
+# Dependencies: 4
+# Priority: high
+# Description: Create the `/auth/login` endpoint in the FastAPI backend to authenticate users and generate JWT tokens upon successful login.
+# Details:
+Implement the endpoint using FastAPI. Validate user credentials (email and password). Retrieve the user from the database using Prisma. Verify the password using bcrypt. Generate a JWT token containing the user ID and email. Return the token to the frontend.
+
+# Test Strategy:
+Send a POST request to `/auth/login` with valid user credentials. Verify that a JWT token is returned upon successful login. Ensure that appropriate error messages are returned for invalid credentials.

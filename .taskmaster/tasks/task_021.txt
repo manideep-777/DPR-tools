@@ -1,0 +1,11 @@
+# Task ID: 21
+# Title: Implement AI generation page in the frontend
+# Status: pending
+# Dependencies: 20, 12
+# Priority: medium
+# Description: Create the AI generation page in the Next.js frontend to display the progress of AI content generation.
+# Details:
+Create the AI generation component. Display a loading spinner and progress messages. Integrate with the backend `/ai/generate-dpr/{form_id}` API endpoint. Redirect the user to the preview page after completion.
+
+# Test Strategy:
+Verify that the AI generation page displays the progress messages correctly and redirects the user to the preview page after completion.

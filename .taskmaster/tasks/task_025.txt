@@ -1,0 +1,11 @@
+# Task ID: 25
+# Title: Configure Railway deployment for the backend
+# Status: pending
+# Dependencies: 2
+# Priority: high
+# Description: Configure Railway to automatically deploy the FastAPI backend application on git push.
+# Details:
+Create a Railway project. Connect the project to the GitHub repository. Set the necessary environment variables in the Railway dashboard.
+
+# Test Strategy:
+Push code changes to the GitHub repository. Verify that Railway automatically deploys the changes and that the backend application is accessible via the Railway URL.

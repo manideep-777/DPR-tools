@@ -1,0 +1,11 @@
+# Task ID: 2
+# Title: Initialize Prisma ORM in the backend
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Set up Prisma in the FastAPI backend to interact with the PostgreSQL database. Define the database connection string and generate the Prisma client.
+# Details:
+Install the Prisma CLI and Prisma client. Configure the `schema.prisma` file with the PostgreSQL connection string. Run `prisma generate` to create the Prisma client. Ensure the Prisma client is correctly integrated into the FastAPI application.
+
+# Test Strategy:
+Write a simple query using the Prisma client to fetch data from the database. Verify that the query returns the expected results.

@@ -1,0 +1,43 @@
+# Task ID: 18
+# Title: Implement user registration and login forms in the frontend
+# Status: pending
+# Dependencies: 17, 5
+# Priority: high
+# Description: Create the signup and login pages in the Next.js frontend using React Hook Form and Zod for validation. Integrate with the backend `/auth/register` and `/auth/login` API endpoints.
+# Details:
+Create the signup and login components using React Hook Form. Define Zod schemas for form validation. Send POST requests to the backend API endpoints to register and login users. Store the JWT token in localStorage or cookies upon successful login. Redirect the user to the dashboard after login.
+
+# Test Strategy:
+Submit the signup and login forms with valid and invalid data. Verify that the forms are validated correctly and that the user is registered and logged in successfully.
+
+# Subtasks:
+## 1. Create Signup Component [pending]
+### Dependencies: None
+### Description: Implement the signup component in Next.js using React Hook Form.
+### Details:
+Develop the signup form with necessary input fields (e.g., name, email, password). Use React Hook Form for form state management and submission handling.
+
+## 2. Create Login Component [pending]
+### Dependencies: None
+### Description: Implement the login component in Next.js using React Hook Form.
+### Details:
+Develop the login form with email and password input fields. Use React Hook Form for form state management and submission handling.
+
+## 3. Define Zod Schemas for Validation [pending]
+### Dependencies: None
+### Description: Define Zod schemas for validating the signup and login forms.
+### Details:
+Create Zod schemas to validate the input fields in both the signup and login forms, including email format, password strength, and required fields.
+
+## 4. Integrate with Backend API Endpoints [pending]
+### Dependencies: 18.1, 18.2, 18.3
+### Description: Integrate the signup and login forms with the backend `/auth/register` and `/auth/login` API endpoints.
+### Details:
+Send POST requests to the `/auth/register` and `/auth/login` endpoints with the form data. Handle the responses from the backend and display appropriate error messages.
+
+## 5. Store JWT Token and Redirect User [pending]
+### Dependencies: 18.4
+### Description: Store the JWT token in localStorage or cookies upon successful login and redirect the user to the dashboard.
+### Details:
+Upon successful login, store the JWT token received from the backend in localStorage or cookies. Redirect the user to the dashboard page.
+

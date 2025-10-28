@@ -1,0 +1,49 @@
+# Task ID: 14
+# Title: Implement financial projections calculation API endpoint
+# Status: pending
+# Dependencies: 10
+# Priority: high
+# Description: Create the `/financial/calculate/{form_id}` (POST) endpoint in the FastAPI backend to calculate financial projections based on the form data.
+# Details:
+Implement the endpoint using FastAPI. Retrieve the form data. Perform the financial calculations as described in the PRD (revenue projections, cost analysis, profit/loss, ROI, break-even, etc.). Store the projections in the `financial_projections` and `financial_summary` tables. Return a success message or error if calculation fails.
+
+# Test Strategy:
+Send a POST request to `/financial/calculate/{form_id}` with a valid JWT token. Verify that the financial projections are calculated correctly and stored in the database.
+
+# Subtasks:
+## 1. Implement FastAPI endpoint for financial calculations [pending]
+### Dependencies: None
+### Description: Create the `/financial/calculate/{form_id}` (POST) endpoint using FastAPI to handle financial projection requests.
+### Details:
+Define the route, request body, and response structure. Implement JWT authentication middleware to protect the endpoint. Handle potential errors gracefully and return appropriate HTTP status codes.
+
+## 2. Retrieve form data from the database [pending]
+### Dependencies: 14.1
+### Description: Retrieve the DPR form data from the database based on the provided `form_id`.
+### Details:
+Use Prisma to query the `dpr_forms` table and retrieve the form data. Handle cases where the form does not exist or the user does not have permission to access it.
+
+## 3. Perform revenue projections [pending]
+### Dependencies: 14.2
+### Description: Calculate revenue projections based on the retrieved form data and the PRD specifications.
+### Details:
+Implement the revenue projection calculations as described in the PRD. Consider different revenue streams, growth rates, and market conditions. Ensure the calculations are accurate and well-documented.
+
+## 4. Perform cost analysis [pending]
+### Dependencies: 14.2
+### Description: Analyze the costs associated with the project based on the retrieved form data and the PRD specifications.
+### Details:
+Implement the cost analysis calculations as described in the PRD. Consider fixed costs, variable costs, and other relevant expenses. Ensure the calculations are accurate and well-documented.
+
+## 5. Calculate profit/loss, ROI, and break-even point [pending]
+### Dependencies: 14.3, 14.4
+### Description: Calculate profit/loss, return on investment (ROI), and break-even point based on the revenue projections and cost analysis.
+### Details:
+Implement the calculations for profit/loss, ROI, and break-even point using the results of the revenue projections and cost analysis. Ensure the calculations are accurate and well-documented.
+
+## 6. Store financial projections in the database [pending]
+### Dependencies: 14.5
+### Description: Store the calculated financial projections in the `financial_projections` and `financial_summary` tables.
+### Details:
+Use Prisma to insert the calculated financial projections into the `financial_projections` and `financial_summary` tables. Ensure that the data is stored correctly and that the database schema is properly defined.
+

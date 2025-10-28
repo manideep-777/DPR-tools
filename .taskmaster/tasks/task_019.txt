@@ -1,0 +1,11 @@
+# Task ID: 19
+# Title: Implement user dashboard in the frontend
+# Status: pending
+# Dependencies: 18, 11
+# Priority: medium
+# Description: Create the user dashboard page in the Next.js frontend to display user statistics and a list of recent DPR forms.
+# Details:
+Create the dashboard component. Fetch user statistics from the backend `/analytics/user-stats` API endpoint. Fetch the list of recent DPR forms from the backend `/user/forms` API endpoint. Display the data in a user-friendly format.
+
+# Test Strategy:
+Verify that the user statistics and the list of recent DPR forms are displayed correctly on the dashboard.

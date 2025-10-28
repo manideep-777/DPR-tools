@@ -1,0 +1,11 @@
+# Task ID: 17
+# Title: Create Next.js frontend application
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Set up a Next.js 14 application with TypeScript, shadcn/ui, Tailwind CSS, React Hook Form, and Zustand.
+# Details:
+Create a new Next.js project using `create-next-app`. Install the necessary dependencies (shadcn/ui, Tailwind CSS, React Hook Form, Zustand). Configure Tailwind CSS. Set up the basic project structure.
+
+# Test Strategy:
+Verify that the Next.js application starts successfully and the basic UI components are rendered correctly.

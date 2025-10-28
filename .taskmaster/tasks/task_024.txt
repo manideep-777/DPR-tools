@@ -1,0 +1,11 @@
+# Task ID: 24
+# Title: Configure Vercel deployment for the frontend
+# Status: pending
+# Dependencies: 17
+# Priority: high
+# Description: Configure Vercel to automatically deploy the Next.js frontend application on git push.
+# Details:
+Create a Vercel project. Connect the project to the GitHub repository. Set the necessary environment variables in the Vercel dashboard.
+
+# Test Strategy:
+Push code changes to the GitHub repository. Verify that Vercel automatically deploys the changes and that the frontend application is accessible via the Vercel URL.

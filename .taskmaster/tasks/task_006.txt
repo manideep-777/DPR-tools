@@ -1,0 +1,37 @@
+# Task ID: 6
+# Title: Implement JWT authentication middleware
+# Status: pending
+# Dependencies: 5
+# Priority: high
+# Description: Create middleware in the FastAPI backend to validate JWT tokens for protected API routes. Extract the token from the `Authorization` header and verify its signature and expiry.
+# Details:
+Implement the middleware using FastAPI's dependency injection system. Extract the token from the `Authorization` header. Verify the token signature using the secret key. Check if the token has expired. If the token is valid, add the user ID to the request context. Otherwise, return an authentication error.
+
+# Test Strategy:
+Send a request to a protected API route without a valid JWT token. Verify that an authentication error is returned. Send a request with a valid JWT token. Verify that the request is processed successfully.
+
+# Subtasks:
+## 1. Implement FastAPI middleware structure [pending]
+### Dependencies: None
+### Description: Create the basic structure for the JWT authentication middleware using FastAPI's dependency injection system.
+### Details:
+Define a class or function that will act as the middleware. Register the middleware with FastAPI to intercept requests. Handle basic request/response flow.
+
+## 2. Extract JWT token from Authorization header [pending]
+### Dependencies: 6.1
+### Description: Implement the logic to extract the JWT token from the `Authorization` header of the incoming request.
+### Details:
+Check for the presence of the `Authorization` header. Extract the token string, removing the 'Bearer ' prefix if present. Handle cases where the header is missing or malformed.
+
+## 3. Verify JWT signature and expiry [pending]
+### Dependencies: 6.2
+### Description: Implement the logic to verify the JWT token's signature using the secret key and check for token expiry.
+### Details:
+Use a JWT library (e.g., `python-jose`) to decode and verify the token signature. Compare the token's expiry time with the current time. Handle invalid signatures and expired tokens.
+
+## 4. Add user ID to request context [pending]
+### Dependencies: 6.3
+### Description: Implement the logic to add the user ID extracted from the JWT token to the request context if the token is valid.
+### Details:
+Extract the user ID from the decoded JWT token. Add the user ID to the request state or context so that it can be accessed by subsequent handlers. Handle cases where the token does not contain a user ID.
+

@@ -1,0 +1,55 @@
+# Task ID: 16
+# Title: Implement PDF generation API endpoint
+# Status: pending
+# Dependencies: 12, 14, 15
+# Priority: high
+# Description: Create the `/pdf/generate/{form_id}` (POST) endpoint in the FastAPI backend to generate a PDF document from the form data.
+# Details:
+Implement the endpoint using FastAPI. Retrieve the form data, AI-generated content, financial projections, and matched schemes. Assemble the HTML template for the PDF. Convert the HTML to PDF using a Python library like WeasyPrint or ReportLab. Upload the PDF to Cloudinary. Save the PDF metadata to the `pdf_documents` table. Return the PDF URL to the frontend.
+
+# Test Strategy:
+Send a POST request to `/pdf/generate/{form_id}` with a valid JWT token. Verify that a PDF document is generated, uploaded to Cloudinary, and the PDF URL is returned.
+
+# Subtasks:
+## 1. Implement FastAPI endpoint for PDF generation [pending]
+### Dependencies: None
+### Description: Create the `/pdf/generate/{form_id}` (POST) endpoint using FastAPI to handle PDF generation requests.
+### Details:
+Define the endpoint using FastAPI, including request validation and error handling. Ensure proper authentication and authorization are in place using JWT middleware.
+
+## 2. Retrieve data for PDF generation [pending]
+### Dependencies: None
+### Description: Retrieve form data, AI-generated content, financial projections, and matched schemes based on the form ID.
+### Details:
+Fetch data from the database using Prisma based on the provided form ID. This includes retrieving form details, AI-generated content, financial projections, and matched schemes. Handle cases where data is missing.
+
+## 3. Assemble HTML template for PDF [pending]
+### Dependencies: 16.2
+### Description: Assemble the HTML template for the PDF document using the retrieved data.
+### Details:
+Create an HTML template with placeholders for the retrieved data. Populate the template with the actual data to generate the final HTML content for the PDF.
+
+## 4. Convert HTML to PDF [pending]
+### Dependencies: 16.3
+### Description: Convert the assembled HTML content to a PDF document using a Python library.
+### Details:
+Use a library like WeasyPrint or ReportLab to convert the HTML content to PDF format. Handle any potential errors during the conversion process.
+
+## 5. Upload PDF to Cloudinary [pending]
+### Dependencies: 16.4
+### Description: Upload the generated PDF document to Cloudinary.
+### Details:
+Use the Cloudinary API to upload the PDF file. Handle authentication and error handling during the upload process. Store the Cloudinary URL for later use.
+
+## 6. Save PDF metadata to database [pending]
+### Dependencies: 16.5
+### Description: Save the PDF metadata (e.g., Cloudinary URL, form ID, timestamp) to the `pdf_documents` table.
+### Details:
+Create a new record in the `pdf_documents` table using Prisma to store the PDF metadata. Include the Cloudinary URL, form ID, and any other relevant information.
+
+## 7. Return PDF URL to frontend [pending]
+### Dependencies: 16.6
+### Description: Return the Cloudinary URL of the generated PDF document to the frontend.
+### Details:
+Return the Cloudinary URL as part of the API response. Ensure that the response is properly formatted and includes any necessary headers.
+

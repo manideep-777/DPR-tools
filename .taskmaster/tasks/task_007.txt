@@ -1,0 +1,43 @@
+# Task ID: 7
+# Title: Implement user profile API endpoints
+# Status: pending
+# Dependencies: 6
+# Priority: medium
+# Description: Create the `/user/profile` (GET and PUT) and `/user/profile/photo` (POST) endpoints in the FastAPI backend to allow users to view, update, and upload their profile information.
+# Details:
+Implement the GET endpoint to retrieve user profile data from the `user_profiles` table using Prisma. Implement the PUT endpoint to update user profile data. Implement the POST endpoint to upload a profile photo to Cloudinary and store the URL in the `user_profiles` table. Use JWT authentication to ensure that only the authenticated user can access their profile.
+
+# Test Strategy:
+Send GET, PUT, and POST requests to the profile endpoints with valid data and JWT tokens. Verify that the profile data is retrieved, updated, and the profile photo is uploaded correctly.
+
+# Subtasks:
+## 1. Implement GET /user/profile endpoint [pending]
+### Dependencies: 7.6
+### Description: Implement the GET endpoint to retrieve user profile data from the `user_profiles` table using Prisma.
+### Details:
+Create a FastAPI route for `/user/profile` that retrieves user data from the database using Prisma based on the user ID obtained from the JWT token. Serialize the data and return it as a JSON response.
+
+## 2. Implement PUT /user/profile endpoint [pending]
+### Dependencies: 7.6, 7.1
+### Description: Implement the PUT endpoint to update user profile data in the `user_profiles` table using Prisma.
+### Details:
+Create a FastAPI route for `/user/profile` that accepts a PUT request with the updated user profile data. Validate the data, update the corresponding record in the database using Prisma, and return a success message.
+
+## 3. Implement POST /user/profile/photo endpoint [pending]
+### Dependencies: 7.6, 7.2, 7.4
+### Description: Implement the POST endpoint to upload a profile photo to Cloudinary and store the URL in the `user_profiles` table.
+### Details:
+Create a FastAPI route for `/user/profile/photo` that accepts a POST request with the profile photo. Upload the photo to Cloudinary, retrieve the URL, update the `user_profiles` table with the new URL using Prisma, and return a success message.
+
+## 4. Integrate with Cloudinary for photo uploads [pending]
+### Dependencies: None
+### Description: Configure and integrate the FastAPI backend with Cloudinary to handle profile photo uploads.
+### Details:
+Install the Cloudinary Python library. Configure the Cloudinary credentials (API key, API secret, cloud name) in the application settings. Implement a function to upload images to Cloudinary and return the URL.
+
+## 5. Implement JWT authentication for profile endpoints [pending]
+### Dependencies: 7.6
+### Description: Apply JWT authentication middleware to the `/user/profile` and `/user/profile/photo` endpoints to ensure that only authenticated users can access them.
+### Details:
+Apply the JWT authentication middleware to the GET, PUT, and POST `/user/profile` endpoints. Ensure that the middleware extracts the user ID from the JWT token and makes it available to the route handlers.
+

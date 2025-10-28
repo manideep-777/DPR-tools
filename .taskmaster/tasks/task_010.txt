@@ -1,0 +1,11 @@
+# Task ID: 10
+# Title: Implement DPR form retrieval API endpoint
+# Status: pending
+# Dependencies: 9
+# Priority: medium
+# Description: Create the `/form/{form_id}` (GET) endpoint in the FastAPI backend to allow users to retrieve complete form data.
+# Details:
+Implement the endpoint using FastAPI. Retrieve the form data from the database using Prisma. Ensure that only the owner of the form can retrieve it.
+
+# Test Strategy:
+Send a GET request to `/form/{form_id}` with a valid JWT token. Verify that the complete form data is returned.

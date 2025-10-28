@@ -1,0 +1,49 @@
+# Task ID: 12
+# Title: Implement AI content generation API endpoint (all sections)
+# Status: pending
+# Dependencies: 10
+# Priority: high
+# Description: Create the `/ai/generate-dpr/{form_id}` (POST) endpoint in the FastAPI backend to generate all DPR sections using the Gemini API.
+# Details:
+Implement the endpoint using FastAPI. Retrieve the form data. Construct prompts for each section based on the form data and the templates in `/DPR Preparation Tool`. Call the Gemini API to generate the content. Store the generated content in the `generated_content` table. Return a success message or error if generation fails.
+
+# Test Strategy:
+Send a POST request to `/ai/generate-dpr/{form_id}` with a valid JWT token. Verify that the AI-generated content is stored in the database and that a success message is returned.
+
+# Subtasks:
+## 1. Implement FastAPI endpoint for AI content generation [pending]
+### Dependencies: None
+### Description: Create the `/ai/generate-dpr/{form_id}` (POST) endpoint using FastAPI to handle AI content generation requests.
+### Details:
+Define the route, request parameters, and response structure for the endpoint. Implement JWT authentication middleware (Task 6) to secure the endpoint. Ensure proper request validation.
+
+## 2. Retrieve DPR form data [pending]
+### Dependencies: 12.1
+### Description: Retrieve the complete DPR form data from the database based on the provided `form_id`.
+### Details:
+Use Prisma to query the `dpr_forms` table and retrieve all relevant data for the specified `form_id`. Handle cases where the form does not exist or the user does not have permission to access it (Task 10).
+
+## 3. Construct prompts for each DPR section [pending]
+### Dependencies: 12.2
+### Description: Construct prompts for each section of the DPR form using the retrieved form data and templates.
+### Details:
+Load the prompt templates from the `/DPR Preparation Tool` directory. Populate the templates with the relevant data from the retrieved form. Ensure that the prompts are well-formatted and optimized for the Gemini API.
+
+## 4. Call the Gemini API to generate content [pending]
+### Dependencies: 12.3
+### Description: Call the Gemini API with the constructed prompts to generate content for each DPR section.
+### Details:
+Implement the API call to the Gemini API using a suitable library (e.g., `google-generativeai`). Handle API authentication, rate limiting, and potential errors. Extract the generated content from the API response.
+
+## 5. Store the generated content in the database [pending]
+### Dependencies: 12.4
+### Description: Store the generated content for each DPR section in the `generated_content` table.
+### Details:
+Use Prisma to insert the generated content into the `generated_content` table, associating it with the corresponding `form_id` and section. Ensure data integrity and proper error handling.
+
+## 6. Handle errors and return response [pending]
+### Dependencies: 12.1, 12.2, 12.3, 12.4, 12.5
+### Description: Implement error handling throughout the process and return an appropriate success or error message to the client.
+### Details:
+Implement comprehensive error handling for all potential failure points, including API call failures, database errors, and invalid input. Return informative error messages to the client. Implement logging for debugging purposes.
+

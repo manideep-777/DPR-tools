@@ -1,0 +1,49 @@
+# Task ID: 22
+# Title: Implement DPR preview page in the frontend
+# Status: pending
+# Dependencies: 21, 13, 14, 15
+# Priority: high
+# Description: Create the DPR preview page in the Next.js frontend to allow users to review the generated DPR before downloading.
+# Details:
+Create the preview component. Fetch the form data, AI-generated content, financial projections, and matched schemes from the backend. Display the data in a user-friendly format. Allow users to edit sections and regenerate content.
+
+# Test Strategy:
+Verify that the DPR preview page displays the data correctly and allows users to edit sections and regenerate content.
+
+# Subtasks:
+## 1. Create DPR preview component [pending]
+### Dependencies: None
+### Description: Develop the main structure and layout for the DPR preview page using Next.js components.
+### Details:
+Implement the basic UI structure with placeholders for data. Use styled-components or Tailwind CSS for styling. Ensure responsiveness.
+
+## 2. Fetch DPR form data from backend [pending]
+### Dependencies: None
+### Description: Implement API call to fetch the initial form data from the backend.
+### Details:
+Use `axios` or `fetch` to make a GET request to the `/form/{form_id}` endpoint. Handle loading and error states. Store the fetched data in component state.
+
+## 3. Fetch AI-generated content from backend [pending]
+### Dependencies: None
+### Description: Implement API call to fetch the AI-generated content for the DPR.
+### Details:
+Make a GET request to the `/ai/content/{form_id}` endpoint. Handle loading and error states. Store the fetched data in component state.
+
+## 4. Fetch financial projections from backend [pending]
+### Dependencies: None
+### Description: Implement API call to fetch the financial projections data.
+### Details:
+Make a GET request to the `/financials/{form_id}` endpoint. Handle loading and error states. Store the fetched data in component state.
+
+## 5. Fetch matched schemes from backend [pending]
+### Dependencies: None
+### Description: Implement API call to fetch the matched schemes data.
+### Details:
+Make a GET request to the `/schemes/{form_id}` endpoint. Handle loading and error states. Store the fetched data in component state.
+
+## 6. Display data and enable editing [pending]
+### Dependencies: 22.1, 22.2, 22.3, 22.4, 22.5
+### Description: Display all fetched data in a user-friendly format and allow users to edit sections.
+### Details:
+Render the fetched data using appropriate UI elements. Implement input fields and controls for editing sections. Implement functionality to regenerate content using AI.
+

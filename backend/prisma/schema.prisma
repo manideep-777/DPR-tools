@@ -1,0 +1,350 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider                    = "prisma-client-py"
+  recursive_type_depth        = 5
+  enable_experimental_decimal = true
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// MSME DPR Generator - Complete Database Schema
+// ============================================
+
+// Table 1: Users
+model User {
+  id              Int       @id @default(autoincrement())
+  email           String    @unique
+  hashedPassword  String    @map("hashed_password")
+  fullName        String    @map("full_name")
+  phone           String
+  businessType    String?   @map("business_type")
+  state           String?
+  createdAt       DateTime  @default(now()) @map("created_at")
+  lastLogin       DateTime? @map("last_login")
+
+  // Relations
+  profile         UserProfile?
+  dprForms        DprForm[]
+  activityLogs    UserActivityLog[]
+
+  @@map("users")
+}
+
+// Table 2: User Profiles
+model UserProfile {
+  id              Int     @id @default(autoincrement())
+  userId          Int     @unique @map("user_id")
+  address         String?
+  aadharNumber    String? @map("aadhar_number")
+  panNumber       String? @map("pan_number")
+  yearsInBusiness Int?    @map("years_in_business")
+  profilePhotoUrl String? @map("profile_photo_url")
+  bio             String?
+
+  // Relations
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+// Table 3: DPR Forms
+model DprForm {
+  id                    Int      @id @default(autoincrement())
+  userId                Int      @map("user_id")
+  businessName          String   @map("business_name")
+  status                String   @default("draft") // draft, generating, completed
+  completionPercentage  Int      @default(0) @map("completion_percentage")
+  createdAt             DateTime @default(now()) @map("created_at")
+  lastModified          DateTime @updatedAt @map("last_modified")
+
+  // Relations
+  user                  User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entrepreneurDetails   EntrepreneurDetails?
+  businessDetails       BusinessDetails?
+  productDetails        ProductDetails?
+  financialDetails      FinancialDetails?
+  revenueAssumptions    RevenueAssumptions?
+  costDetails           CostDetails?
+  staffingDetails       StaffingDetails?
+  timelineDetails       TimelineDetails?
+  generatedContents     GeneratedContent[]
+  financialProjections  FinancialProjection[]
+  financialSummary      FinancialSummary?
+  selectedSchemes       SelectedScheme[]
+  pdfDocuments          PdfDocument[]
+  activityLogs          UserActivityLog[]
+
+  @@map("dpr_forms")
+}
+
+// Table 4: Entrepreneur Details
+model EntrepreneurDetails {
+  id                         Int      @id @default(autoincrement())
+  formId                     Int      @unique @map("form_id")
+  fullName                   String   @map("full_name")
+  dateOfBirth                DateTime @map("date_of_birth")
+  education                  String
+  yearsOfExperience          Int      @map("years_of_experience")
+  previousBusinessExperience String?  @map("previous_business_experience")
+  technicalSkills            String?  @map("technical_skills")
+
+  // Relations
+  form                       DprForm  @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@map("entrepreneur_details")
+}
+
+// Table 5: Business Details
+model BusinessDetails {
+  id                 Int     @id @default(autoincrement())
+  formId             Int     @unique @map("form_id")
+  businessName       String  @map("business_name")
+  sector             String
+  subSector          String? @map("sub_sector")
+  legalStructure     String  @map("legal_structure") // proprietorship, partnership, LLP, Pvt Ltd
+  registrationNumber String? @map("registration_number")
+  location           String
+  address            String
+
+  // Relations
+  form               DprForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@map("business_details")
+}
+
+// Table 6: Product Details
+model ProductDetails {
+  id                    Int     @id @default(autoincrement())
+  formId                Int     @unique @map("form_id")
+  productName           String  @map("product_name")
+  description           String
+  keyFeatures           Json    @map("key_features") // JSON array
+  targetCustomers       String  @map("target_customers")
+  currentCapacity       Int?    @map("current_capacity")
+  plannedCapacity       Int     @map("planned_capacity")
+  uniqueSellingPoints   String  @map("unique_selling_points")
+  qualityCertifications String? @map("quality_certifications")
+
+  // Relations
+  form                  DprForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@map("product_details")
+}
+
+// Table 7: Financial Details
+model FinancialDetails {
+  id                     Int     @id @default(autoincrement())
+  formId                 Int     @unique @map("form_id")
+  totalInvestmentAmount  Decimal @map("total_investment_amount") @db.Decimal(15, 2)
+  landCost               Decimal @map("land_cost") @db.Decimal(15, 2)
+  buildingCost           Decimal @map("building_cost") @db.Decimal(15, 2)
+  machineryCost          Decimal @map("machinery_cost") @db.Decimal(15, 2)
+  workingCapital         Decimal @map("working_capital") @db.Decimal(15, 2)
+  otherCosts             Decimal @map("other_costs") @db.Decimal(15, 2)
+  ownContribution        Decimal @map("own_contribution") @db.Decimal(15, 2)
+  loanRequired           Decimal @map("loan_required") @db.Decimal(15, 2)
+
+  // Relations
+  form                   DprForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@map("financial_details")
+}
+
+// Table 8: Revenue Assumptions
+model RevenueAssumptions {
+  id                          Int     @id @default(autoincrement())
+  formId                      Int     @unique @map("form_id")
+  productPrice                Decimal @map("product_price") @db.Decimal(15, 2)
+  monthlySalesQuantityYear1   Int     @map("monthly_sales_quantity_year1")
+  monthlySalesQuantityYear2   Int     @map("monthly_sales_quantity_year2")
+  monthlySalesQuantityYear3   Int     @map("monthly_sales_quantity_year3")
+  growthRatePercentage        Decimal @map("growth_rate_percentage") @db.Decimal(5, 2)
+
+  // Relations
+  form                        DprForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@map("revenue_assumptions")
+}
+
+// Table 9: Cost Details
+model CostDetails {
+  id                      Int     @id @default(autoincrement())
+  formId                  Int     @unique @map("form_id")
+  rawMaterialCostMonthly  Decimal @map("raw_material_cost_monthly") @db.Decimal(15, 2)
+  laborCostMonthly        Decimal @map("labor_cost_monthly") @db.Decimal(15, 2)
+  utilitiesCostMonthly    Decimal @map("utilities_cost_monthly") @db.Decimal(15, 2)
+  rentMonthly             Decimal @map("rent_monthly") @db.Decimal(15, 2)
+  marketingCostMonthly    Decimal @map("marketing_cost_monthly") @db.Decimal(15, 2)
+  otherFixedCostsMonthly  Decimal @map("other_fixed_costs_monthly") @db.Decimal(15, 2)
+
+  // Relations
+  form                    DprForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@map("cost_details")
+}
+
+// Table 10: Staffing Details
+model StaffingDetails {
+  id                  Int     @id @default(autoincrement())
+  formId              Int     @unique @map("form_id")
+  totalEmployees      Int     @map("total_employees")
+  managementCount     Int     @map("management_count")
+  technicalStaffCount Int     @map("technical_staff_count")
+  supportStaffCount   Int     @map("support_staff_count")
+  averageSalary       Decimal @map("average_salary") @db.Decimal(15, 2)
+
+  // Relations
+  form                DprForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@map("staffing_details")
+}
+
+// Table 11: Timeline Details
+model TimelineDetails {
+  id                              Int @id @default(autoincrement())
+  formId                          Int @unique @map("form_id")
+  landAcquisitionMonths           Int @map("land_acquisition_months")
+  constructionMonths              Int @map("construction_months")
+  machineryInstallationMonths     Int @map("machinery_installation_months")
+  trialProductionMonths           Int @map("trial_production_months")
+  commercialProductionStartMonth  Int @map("commercial_production_start_month")
+
+  // Relations
+  form                            DprForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@map("timeline_details")
+}
+
+// Table 12: Generated Content (AI)
+model GeneratedContent {
+  id              Int      @id @default(autoincrement())
+  formId          Int      @map("form_id")
+  sectionName     String   @map("section_name") // executive_summary, market_analysis, etc.
+  generatedText   String   @map("generated_text") @db.Text
+  aiModelUsed     String   @map("ai_model_used")
+  confidenceScore Int?     @map("confidence_score")
+  versionNumber   Int      @default(1) @map("version_number")
+  userEdited      Boolean  @default(false) @map("user_edited")
+  generatedAt     DateTime @default(now()) @map("generated_at")
+
+  // Relations
+  form            DprForm  @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@map("generated_content")
+}
+
+// Table 13: Financial Projections (36 months)
+model FinancialProjection {
+  id                     Int     @id @default(autoincrement())
+  formId                 Int     @map("form_id")
+  monthNumber            Int     @map("month_number")
+  revenue                Decimal @db.Decimal(15, 2)
+  fixedCosts             Decimal @map("fixed_costs") @db.Decimal(15, 2)
+  variableCosts          Decimal @map("variable_costs") @db.Decimal(15, 2)
+  profitLoss             Decimal @map("profit_loss") @db.Decimal(15, 2)
+  cumulativeProfitLoss   Decimal @map("cumulative_profit_loss") @db.Decimal(15, 2)
+
+  // Relations
+  form                   DprForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@unique([formId, monthNumber])
+  @@map("financial_projections")
+}
+
+// Table 14: Financial Summary
+model FinancialSummary {
+  id                      Int      @id @default(autoincrement())
+  formId                  Int      @unique @map("form_id")
+  breakevenMonths         Int      @map("breakeven_months")
+  roiPercentage           Decimal  @map("roi_percentage") @db.Decimal(5, 2)
+  paybackPeriodMonths     Int      @map("payback_period_months")
+  npv                     Decimal  @db.Decimal(15, 2)
+  profitMarginPercentage  Decimal  @map("profit_margin_percentage") @db.Decimal(5, 2)
+  calculatedAt            DateTime @default(now()) @map("calculated_at")
+
+  // Relations
+  form                    DprForm  @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@map("financial_summary")
+}
+
+// Table 15: Government Schemes
+model Scheme {
+  id                  Int     @id @default(autoincrement())
+  schemeName          String  @map("scheme_name")
+  ministry            String
+  schemeType          String  @map("scheme_type") // subsidy, loan, training, etc.
+  description         String  @db.Text
+  subsidyPercentage   Decimal? @map("subsidy_percentage") @db.Decimal(5, 2)
+  maxSubsidyAmount    Decimal? @map("max_subsidy_amount") @db.Decimal(15, 2)
+  eligibleSectors     Json    @map("eligible_sectors") // JSON array
+  eligibleStates      Json    @map("eligible_states") // JSON array
+  minInvestment       Decimal? @map("min_investment") @db.Decimal(15, 2)
+  maxInvestment       Decimal? @map("max_investment") @db.Decimal(15, 2)
+  eligibilityCriteria String  @map("eligibility_criteria") @db.Text
+  applicationLink     String? @map("application_link")
+
+  // Relations
+  selectedSchemes     SelectedScheme[]
+
+  @@map("schemes")
+}
+
+// Table 16: Selected Schemes
+model SelectedScheme {
+  id          Int      @id @default(autoincrement())
+  formId      Int      @map("form_id")
+  schemeId    Int      @map("scheme_id")
+  selectedAt  DateTime @default(now()) @map("selected_at")
+
+  // Relations
+  form        DprForm  @relation(fields: [formId], references: [id], onDelete: Cascade)
+  scheme      Scheme   @relation(fields: [schemeId], references: [id], onDelete: Cascade)
+
+  @@unique([formId, schemeId])
+  @@map("selected_schemes")
+}
+
+// Table 17: PDF Documents
+model PdfDocument {
+  id             Int      @id @default(autoincrement())
+  formId         Int      @map("form_id")
+  fileUrl        String   @map("file_url")
+  fileName       String   @map("file_name")
+  fileSize       Int      @map("file_size")
+  language       String   @default("english") // english, telugu
+  templateType   String   @map("template_type") // basic, professional, bank-ready
+  generatedAt    DateTime @default(now()) @map("generated_at")
+  downloadCount  Int      @default(0) @map("download_count")
+
+  // Relations
+  form           DprForm  @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@map("pdf_documents")
+}
+
+// Table 18: User Activity Log
+model UserActivityLog {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @map("user_id")
+  activityType String   @map("activity_type") // form_created, pdf_generated, etc.
+  formId       Int?     @map("form_id")
+  timestamp    DateTime @default(now())
+  deviceType   String?  @map("device_type") // web, mobile
+
+  // Relations
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  form         DprForm? @relation(fields: [formId], references: [id], onDelete: SetNull)
+
+  @@map("user_activity_log")
+}
+

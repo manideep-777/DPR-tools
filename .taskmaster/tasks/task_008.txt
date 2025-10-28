@@ -1,0 +1,11 @@
+# Task ID: 8
+# Title: Implement DPR form creation API endpoint
+# Status: pending
+# Dependencies: 6
+# Priority: high
+# Description: Create the `/form/create` endpoint in the FastAPI backend to allow users to create new DPR forms. Store the form data in the `dpr_forms` table.
+# Details:
+Implement the endpoint using FastAPI. Validate user input. Create a new record in the `dpr_forms` table using Prisma. Return the ID of the newly created form.
+
+# Test Strategy:
+Send a POST request to `/form/create` with valid form data and a JWT token. Verify that a new record is created in the `dpr_forms` table and the form ID is returned.

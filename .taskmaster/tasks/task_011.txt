@@ -1,0 +1,11 @@
+# Task ID: 11
+# Title: Implement user forms list API endpoint
+# Status: pending
+# Dependencies: 10
+# Priority: medium
+# Description: Create the `/user/forms` (GET) endpoint in the FastAPI backend to allow users to list all their DPR forms.
+# Details:
+Implement the endpoint using FastAPI. Retrieve all forms associated with the authenticated user from the `dpr_forms` table using Prisma. Return a list of form objects.
+
+# Test Strategy:
+Send a GET request to `/user/forms` with a valid JWT token. Verify that a list of the user's forms is returned.

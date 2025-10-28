@@ -1,0 +1,43 @@
+# Task ID: 15
+# Title: Implement government scheme matching API endpoint
+# Status: pending
+# Dependencies: 10
+# Priority: medium
+# Description: Create the `/schemes/match/{form_id}` (POST) endpoint in the FastAPI backend to find matching government schemes based on the form data.
+# Details:
+Implement the endpoint using FastAPI. Retrieve the form data. Filter and rank the schemes based on the matching criteria described in the PRD (sector, investment range, state). Return a list of matching schemes.
+
+# Test Strategy:
+Send a POST request to `/schemes/match/{form_id}` with a valid JWT token. Verify that the correct government schemes are matched based on the form data.
+
+# Subtasks:
+## 1. Implement FastAPI endpoint for scheme matching [pending]
+### Dependencies: None
+### Description: Create the `/schemes/match/{form_id}` (POST) endpoint using FastAPI to handle scheme matching requests.
+### Details:
+Define the route, request body (form_id), and response structure using FastAPI. Implement JWT authentication middleware to protect the endpoint.
+
+## 2. Retrieve form data from the request [pending]
+### Dependencies: 15.1
+### Description: Extract the form data from the incoming POST request to `/schemes/match/{form_id}`.
+### Details:
+Access the request body using FastAPI's request object and parse the JSON data. Handle potential errors during data extraction.
+
+## 3. Filter schemes based on sector [pending]
+### Dependencies: 15.2
+### Description: Implement the logic to filter government schemes based on the sector specified in the form data.
+### Details:
+Access the sector information from the extracted form data. Query the database of government schemes and filter based on matching sectors. Handle cases where the sector is not specified or invalid.
+
+## 4. Filter schemes based on investment range and state [pending]
+### Dependencies: 15.2, 15.3
+### Description: Implement the logic to filter government schemes based on the investment range and state specified in the form data.
+### Details:
+Access the investment range and state information from the extracted form data. Query the database of government schemes and filter based on matching investment ranges and states. Handle cases where the investment range or state is not specified or invalid.
+
+## 5. Rank the matching schemes and return the result [pending]
+### Dependencies: 15.4
+### Description: Rank the filtered government schemes based on a predefined ranking algorithm and return the top-ranked schemes.
+### Details:
+Implement the ranking algorithm based on the criteria defined in the PRD. Sort the filtered schemes based on the ranking score. Return a list of the top-ranked schemes in the response.
+

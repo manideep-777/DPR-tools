@@ -1,0 +1,1088 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Set up PostgreSQL database with Docker Compose",
+        "description": "Configure a PostgreSQL 15 database using Docker Compose, including pgAdmin for management. Define the necessary environment variables.",
+        "details": "Create a `docker-compose.yml` file to define the PostgreSQL and pgAdmin services. Set the database name, user, password, and port. Ensure the database is accessible from the backend application. Use the provided example in the PRD.",
+        "testStrategy": "Verify that the PostgreSQL container starts successfully and pgAdmin is accessible via a web browser. Confirm that you can connect to the database using the specified credentials.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 2,
+        "title": "Initialize Prisma ORM in the backend",
+        "description": "Set up Prisma in the FastAPI backend to interact with the PostgreSQL database. Define the database connection string and generate the Prisma client.",
+        "details": "Install the Prisma CLI and Prisma client. Configure the `schema.prisma` file with the PostgreSQL connection string. Run `prisma generate` to create the Prisma client. Ensure the Prisma client is correctly integrated into the FastAPI application.",
+        "testStrategy": "Write a simple query using the Prisma client to fetch data from the database. Verify that the query returns the expected results.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Define Prisma schema for database tables",
+        "description": "Create the Prisma schema (`schema.prisma`) based on the provided database schema in the PRD, including tables for users, user_profiles, dpr_forms, and related entities.",
+        "details": "Define the models for each table, including data types, primary keys, foreign keys, and relationships. Ensure the schema accurately reflects the database structure described in the PRD. Refer to the provided table schemas for column definitions.",
+        "testStrategy": "Use Prisma Migrate to create the database tables based on the schema. Verify that the tables are created with the correct columns and data types in the PostgreSQL database.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define Prisma schema for the User model",
+            "description": "Create the Prisma model for the `users` table, including fields for id, name, email, phone, password, business type, and state.",
+            "dependencies": [],
+            "details": "Define the `User` model in `schema.prisma` with appropriate data types, primary key (id), and any necessary indexes. Refer to the PRD for column definitions and constraints. Use String, Int, and DateTime types as needed.",
+            "status": "done",
+            "testStrategy": "Inspect the generated Prisma schema to ensure the User model accurately reflects the database schema in the PRD. Use Prisma Migrate to apply the schema and verify the table structure in the PostgreSQL database."
+          },
+          {
+            "id": 2,
+            "title": "Define Prisma schema for the UserProfile model",
+            "description": "Create the Prisma model for the `user_profiles` table, including fields for user ID, profile details, and any relevant metadata.",
+            "dependencies": [],
+            "details": "Define the `UserProfile` model in `schema.prisma` with appropriate data types, primary key (id), and foreign key referencing the `User` model. Refer to the PRD for column definitions. Use String, Int, and DateTime types as needed.",
+            "status": "done",
+            "testStrategy": "Inspect the generated Prisma schema to ensure the UserProfile model accurately reflects the database schema in the PRD. Use Prisma Migrate to apply the schema and verify the table structure in the PostgreSQL database."
+          },
+          {
+            "id": 3,
+            "title": "Define Prisma schema for the DprForms model",
+            "description": "Create the Prisma model for the `dpr_forms` table, including fields for form ID, user ID, submission date, and form data.",
+            "dependencies": [],
+            "details": "Define the `DprForms` model in `schema.prisma` with appropriate data types, primary key (id), and foreign key referencing the `User` model. Refer to the PRD for column definitions. Use String, Int, and DateTime types as needed.",
+            "status": "done",
+            "testStrategy": "Inspect the generated Prisma schema to ensure the DprForms model accurately reflects the database schema in the PRD. Use Prisma Migrate to apply the schema and verify the table structure in the PostgreSQL database."
+          },
+          {
+            "id": 4,
+            "title": "Define relationships between Prisma models",
+            "description": "Establish relationships between the User, UserProfile, and DprForms models using Prisma's relation syntax.",
+            "dependencies": [
+              1,
+              2,
+              3
+            ],
+            "details": "Define the one-to-one relationship between `User` and `UserProfile`, and the one-to-many relationship between `User` and `DprForms` using the `relation` attribute in `schema.prisma`. Ensure referential integrity is maintained.",
+            "status": "done",
+            "testStrategy": "Inspect the generated Prisma schema to ensure the relationships between models are correctly defined. Use Prisma Migrate to apply the schema and verify the foreign key constraints in the PostgreSQL database."
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Implement user registration API endpoint",
+        "description": "Create the `/auth/register` endpoint in the FastAPI backend to allow new users to create accounts. Hash passwords using bcrypt before storing them in the database.",
+        "details": "Implement the endpoint using FastAPI. Validate user input (name, email, phone, password, business type, state). Hash the password using bcrypt. Store the user data in the `users` table using Prisma. Return a success message or error if registration fails.",
+        "testStrategy": "Send a POST request to `/auth/register` with valid user data. Verify that the user account is created in the database with the hashed password. Ensure that appropriate error messages are returned for invalid input or registration failures.",
+        "priority": "high",
+        "dependencies": [
+          2,
+          3
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement the /auth/register FastAPI endpoint",
+            "description": "Create the /auth/register endpoint using FastAPI to handle user registration requests.",
+            "dependencies": [],
+            "details": "Define the route, request body (Pydantic model), and response structure for the /auth/register endpoint in FastAPI. Handle incoming requests and call validation and database storage functions.",
+            "status": "done",
+            "testStrategy": "Send POST requests with valid and invalid data to the /auth/register endpoint and verify the responses."
+          },
+          {
+            "id": 2,
+            "title": "Validate user input",
+            "description": "Validate user input (name, email, phone, password, business type, state) to ensure data integrity.",
+            "dependencies": [
+              1
+            ],
+            "details": "Implement input validation using Pydantic models and custom validation functions. Check for required fields, valid email format, strong password, and allowed values for business type and state.",
+            "status": "done",
+            "testStrategy": "Test with various valid and invalid inputs for each field and verify that validation errors are raised correctly."
+          },
+          {
+            "id": 3,
+            "title": "Hash the password using bcrypt",
+            "description": "Hash the user's password using bcrypt before storing it in the database for security.",
+            "dependencies": [
+              2
+            ],
+            "details": "Use the bcrypt library to hash the password. Generate a salt and hash the password with the salt. Store the hashed password in the database.",
+            "status": "done",
+            "testStrategy": "Verify that the password is correctly hashed using bcrypt and that the hashed password is different for the same password with different salts."
+          },
+          {
+            "id": 4,
+            "title": "Store the user data in the database",
+            "description": "Store the validated user data, including the hashed password, in the `users` table using Prisma.",
+            "dependencies": [
+              3
+            ],
+            "details": "Use Prisma to create a new record in the `users` table with the validated user data and the hashed password. Handle potential database errors.",
+            "status": "done",
+            "testStrategy": "Verify that the user data is correctly stored in the database, including the hashed password. Check for database errors and ensure that the transaction is rolled back if an error occurs."
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Implement user login API endpoint",
+        "description": "Create the `/auth/login` endpoint in the FastAPI backend to authenticate users and generate JWT tokens upon successful login.",
+        "details": "Implement the endpoint using FastAPI. Validate user credentials (email and password). Retrieve the user from the database using Prisma. Verify the password using bcrypt. Generate a JWT token containing the user ID and email. Return the token to the frontend.",
+        "testStrategy": "Send a POST request to `/auth/login` with valid user credentials. Verify that a JWT token is returned upon successful login. Ensure that appropriate error messages are returned for invalid credentials.",
+        "priority": "high",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Implement JWT authentication middleware",
+        "description": "Create middleware in the FastAPI backend to validate JWT tokens for protected API routes. Extract the token from the `Authorization` header and verify its signature and expiry.",
+        "details": "Implement the middleware using FastAPI's dependency injection system. Extract the token from the `Authorization` header. Verify the token signature using the secret key. Check if the token has expired. If the token is valid, add the user ID to the request context. Otherwise, return an authentication error.",
+        "testStrategy": "Send a request to a protected API route without a valid JWT token. Verify that an authentication error is returned. Send a request with a valid JWT token. Verify that the request is processed successfully.",
+        "priority": "high",
+        "dependencies": [
+          5
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement FastAPI middleware structure",
+            "description": "Create the basic structure for the JWT authentication middleware using FastAPI's dependency injection system.",
+            "dependencies": [],
+            "details": "Define a class or function that will act as the middleware. Register the middleware with FastAPI to intercept requests. Handle basic request/response flow.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 2,
+            "title": "Extract JWT token from Authorization header",
+            "description": "Implement the logic to extract the JWT token from the `Authorization` header of the incoming request.",
+            "dependencies": [
+              1
+            ],
+            "details": "Check for the presence of the `Authorization` header. Extract the token string, removing the 'Bearer ' prefix if present. Handle cases where the header is missing or malformed.",
+            "status": "pending",
+            "testStrategy": "Send requests with and without the Authorization header. Verify that the token is extracted correctly or an appropriate error is raised."
+          },
+          {
+            "id": 3,
+            "title": "Verify JWT signature and expiry",
+            "description": "Implement the logic to verify the JWT token's signature using the secret key and check for token expiry.",
+            "dependencies": [
+              2
+            ],
+            "details": "Use a JWT library (e.g., `python-jose`) to decode and verify the token signature. Compare the token's expiry time with the current time. Handle invalid signatures and expired tokens.",
+            "status": "pending",
+            "testStrategy": "Create valid, invalid, and expired JWT tokens. Send requests with each type of token and verify that the verification logic works correctly."
+          },
+          {
+            "id": 4,
+            "title": "Add user ID to request context",
+            "description": "Implement the logic to add the user ID extracted from the JWT token to the request context if the token is valid.",
+            "dependencies": [
+              3
+            ],
+            "details": "Extract the user ID from the decoded JWT token. Add the user ID to the request state or context so that it can be accessed by subsequent handlers. Handle cases where the token does not contain a user ID.",
+            "status": "pending",
+            "testStrategy": "Send a request with a valid JWT token. Verify that the user ID is added to the request context and can be accessed by a downstream handler."
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Implement user profile API endpoints",
+        "description": "Create the `/user/profile` (GET and PUT) and `/user/profile/photo` (POST) endpoints in the FastAPI backend to allow users to view, update, and upload their profile information.",
+        "details": "Implement the GET endpoint to retrieve user profile data from the `user_profiles` table using Prisma. Implement the PUT endpoint to update user profile data. Implement the POST endpoint to upload a profile photo to Cloudinary and store the URL in the `user_profiles` table. Use JWT authentication to ensure that only the authenticated user can access their profile.",
+        "testStrategy": "Send GET, PUT, and POST requests to the profile endpoints with valid data and JWT tokens. Verify that the profile data is retrieved, updated, and the profile photo is uploaded correctly.",
+        "priority": "medium",
+        "dependencies": [
+          6
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement GET /user/profile endpoint",
+            "description": "Implement the GET endpoint to retrieve user profile data from the `user_profiles` table using Prisma.",
+            "dependencies": [
+              6
+            ],
+            "details": "Create a FastAPI route for `/user/profile` that retrieves user data from the database using Prisma based on the user ID obtained from the JWT token. Serialize the data and return it as a JSON response.",
+            "status": "pending",
+            "testStrategy": "Send a GET request to `/user/profile` with a valid JWT token. Verify that the correct user profile data is returned in the response."
+          },
+          {
+            "id": 2,
+            "title": "Implement PUT /user/profile endpoint",
+            "description": "Implement the PUT endpoint to update user profile data in the `user_profiles` table using Prisma.",
+            "dependencies": [
+              6,
+              1
+            ],
+            "details": "Create a FastAPI route for `/user/profile` that accepts a PUT request with the updated user profile data. Validate the data, update the corresponding record in the database using Prisma, and return a success message.",
+            "status": "pending",
+            "testStrategy": "Send a PUT request to `/user/profile` with valid user profile data and a JWT token. Verify that the user profile data is updated correctly in the database."
+          },
+          {
+            "id": 3,
+            "title": "Implement POST /user/profile/photo endpoint",
+            "description": "Implement the POST endpoint to upload a profile photo to Cloudinary and store the URL in the `user_profiles` table.",
+            "dependencies": [
+              6,
+              2,
+              4
+            ],
+            "details": "Create a FastAPI route for `/user/profile/photo` that accepts a POST request with the profile photo. Upload the photo to Cloudinary, retrieve the URL, update the `user_profiles` table with the new URL using Prisma, and return a success message.",
+            "status": "pending",
+            "testStrategy": "Send a POST request to `/user/profile/photo` with a profile photo and a JWT token. Verify that the photo is uploaded to Cloudinary, the URL is stored in the database, and a success message is returned."
+          },
+          {
+            "id": 4,
+            "title": "Integrate with Cloudinary for photo uploads",
+            "description": "Configure and integrate the FastAPI backend with Cloudinary to handle profile photo uploads.",
+            "dependencies": [],
+            "details": "Install the Cloudinary Python library. Configure the Cloudinary credentials (API key, API secret, cloud name) in the application settings. Implement a function to upload images to Cloudinary and return the URL.",
+            "status": "pending",
+            "testStrategy": "Upload a test image to Cloudinary using the integration. Verify that the image is uploaded successfully and the correct URL is returned."
+          },
+          {
+            "id": 5,
+            "title": "Implement JWT authentication for profile endpoints",
+            "description": "Apply JWT authentication middleware to the `/user/profile` and `/user/profile/photo` endpoints to ensure that only authenticated users can access them.",
+            "dependencies": [
+              6
+            ],
+            "details": "Apply the JWT authentication middleware to the GET, PUT, and POST `/user/profile` endpoints. Ensure that the middleware extracts the user ID from the JWT token and makes it available to the route handlers.",
+            "status": "pending",
+            "testStrategy": "Send requests to the profile endpoints with and without a valid JWT token. Verify that requests without a valid token are rejected and requests with a valid token are processed successfully."
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Implement DPR form creation API endpoint",
+        "description": "Create the `/form/create` endpoint in the FastAPI backend to allow users to create new DPR forms. Store the form data in the `dpr_forms` table.",
+        "details": "Implement the endpoint using FastAPI. Validate user input. Create a new record in the `dpr_forms` table using Prisma. Return the ID of the newly created form.",
+        "testStrategy": "Send a POST request to `/form/create` with valid form data and a JWT token. Verify that a new record is created in the `dpr_forms` table and the form ID is returned.",
+        "priority": "high",
+        "dependencies": [
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "Implement DPR form update API endpoints",
+        "description": "Create the `/form/{form_id}` (PUT) and `/form/{form_id}/section/{section_name}` (PUT) endpoints in the FastAPI backend to allow users to update entire forms or specific sections.",
+        "details": "Implement the endpoints using FastAPI. Validate user input. Update the corresponding records in the database using Prisma. Ensure that only the owner of the form can update it.",
+        "testStrategy": "Send PUT requests to the form update endpoints with valid data and a JWT token. Verify that the form data is updated correctly in the database.",
+        "priority": "medium",
+        "dependencies": [
+          8
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement PUT endpoint for entire form",
+            "description": "Create the `/form/{form_id}` (PUT) endpoint to update the entire DPR form. This involves defining the route, handling the request, and updating the database.",
+            "dependencies": [
+              8
+            ],
+            "details": "Use FastAPI to define the PUT route `/form/{form_id}`. Receive the entire form data in the request body. Use Prisma to update the corresponding record in the `dpr_forms` table. Handle potential errors during database updates.",
+            "status": "pending",
+            "testStrategy": "Send a PUT request to `/form/{form_id}` with valid form data and a JWT token. Verify that the form data is updated correctly in the database."
+          },
+          {
+            "id": 2,
+            "title": "Implement PUT endpoint for specific sections",
+            "description": "Create the `/form/{form_id}/section/{section_name}` (PUT) endpoint to update specific sections of the DPR form. This involves defining the route, handling the request, and updating the database.",
+            "dependencies": [
+              8
+            ],
+            "details": "Use FastAPI to define the PUT route `/form/{form_id}/section/{section_name}`. Receive the section data in the request body. Use Prisma to update the corresponding section in the `dpr_forms` table. Handle potential errors during database updates.",
+            "status": "pending",
+            "testStrategy": "Send a PUT request to `/form/{form_id}/section/{section_name}` with valid section data and a JWT token. Verify that the section data is updated correctly in the database."
+          },
+          {
+            "id": 3,
+            "title": "Validate user input for form updates",
+            "description": "Implement input validation for both the entire form update and the section update endpoints to ensure data integrity.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Use Pydantic models to define the expected structure and data types for the form and section data. Implement validation logic to check for required fields, data type correctness, and any other relevant constraints. Return appropriate error messages for invalid input.",
+            "status": "pending",
+            "testStrategy": "Send PUT requests to both endpoints with invalid data. Verify that appropriate error messages are returned."
+          },
+          {
+            "id": 4,
+            "title": "Ensure only the owner can update the form",
+            "description": "Implement authorization checks to ensure that only the owner of the form can update it via the PUT endpoints.",
+            "dependencies": [
+              6,
+              1,
+              2
+            ],
+            "details": "Use the JWT token to identify the user making the request. Retrieve the form from the database using Prisma. Verify that the user ID in the JWT token matches the owner ID of the form. Return an authorization error if the user is not the owner.",
+            "status": "pending",
+            "testStrategy": "Send PUT requests to both endpoints with a JWT token of a user who is not the owner of the form. Verify that an authorization error is returned. Send PUT requests with the owner's JWT token and verify the update is successful."
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Implement DPR form retrieval API endpoint",
+        "description": "Create the `/form/{form_id}` (GET) endpoint in the FastAPI backend to allow users to retrieve complete form data.",
+        "details": "Implement the endpoint using FastAPI. Retrieve the form data from the database using Prisma. Ensure that only the owner of the form can retrieve it.",
+        "testStrategy": "Send a GET request to `/form/{form_id}` with a valid JWT token. Verify that the complete form data is returned.",
+        "priority": "medium",
+        "dependencies": [
+          9
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 11,
+        "title": "Implement user forms list API endpoint",
+        "description": "Create the `/user/forms` (GET) endpoint in the FastAPI backend to allow users to list all their DPR forms.",
+        "details": "Implement the endpoint using FastAPI. Retrieve all forms associated with the authenticated user from the `dpr_forms` table using Prisma. Return a list of form objects.",
+        "testStrategy": "Send a GET request to `/user/forms` with a valid JWT token. Verify that a list of the user's forms is returned.",
+        "priority": "medium",
+        "dependencies": [
+          10
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 12,
+        "title": "Implement AI content generation API endpoint (all sections)",
+        "description": "Create the `/ai/generate-dpr/{form_id}` (POST) endpoint in the FastAPI backend to generate all DPR sections using the Gemini API.",
+        "details": "Implement the endpoint using FastAPI. Retrieve the form data. Construct prompts for each section based on the form data and the templates in `/DPR Preparation Tool`. Call the Gemini API to generate the content. Store the generated content in the `generated_content` table. Return a success message or error if generation fails.",
+        "testStrategy": "Send a POST request to `/ai/generate-dpr/{form_id}` with a valid JWT token. Verify that the AI-generated content is stored in the database and that a success message is returned.",
+        "priority": "high",
+        "dependencies": [
+          10
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement FastAPI endpoint for AI content generation",
+            "description": "Create the `/ai/generate-dpr/{form_id}` (POST) endpoint using FastAPI to handle AI content generation requests.",
+            "dependencies": [],
+            "details": "Define the route, request parameters, and response structure for the endpoint. Implement JWT authentication middleware (Task 6) to secure the endpoint. Ensure proper request validation.",
+            "status": "pending",
+            "testStrategy": "Send a POST request to the endpoint with a valid JWT token and form ID. Verify that the endpoint returns a success message or an appropriate error response."
+          },
+          {
+            "id": 2,
+            "title": "Retrieve DPR form data",
+            "description": "Retrieve the complete DPR form data from the database based on the provided `form_id`.",
+            "dependencies": [
+              1
+            ],
+            "details": "Use Prisma to query the `dpr_forms` table and retrieve all relevant data for the specified `form_id`. Handle cases where the form does not exist or the user does not have permission to access it (Task 10).",
+            "status": "pending",
+            "testStrategy": "Verify that the correct form data is retrieved for a valid `form_id`. Ensure that an error is returned if the form does not exist or the user does not have permission."
+          },
+          {
+            "id": 3,
+            "title": "Construct prompts for each DPR section",
+            "description": "Construct prompts for each section of the DPR form using the retrieved form data and templates.",
+            "dependencies": [
+              2
+            ],
+            "details": "Load the prompt templates from the `/DPR Preparation Tool` directory. Populate the templates with the relevant data from the retrieved form. Ensure that the prompts are well-formatted and optimized for the Gemini API.",
+            "status": "pending",
+            "testStrategy": "Manually inspect the generated prompts to ensure they are accurate, complete, and well-formatted. Verify that all relevant form data is included in the prompts."
+          },
+          {
+            "id": 4,
+            "title": "Call the Gemini API to generate content",
+            "description": "Call the Gemini API with the constructed prompts to generate content for each DPR section.",
+            "dependencies": [
+              3
+            ],
+            "details": "Implement the API call to the Gemini API using a suitable library (e.g., `google-generativeai`). Handle API authentication, rate limiting, and potential errors. Extract the generated content from the API response.",
+            "status": "pending",
+            "testStrategy": "Verify that the Gemini API is called with the correct prompts. Ensure that the API returns a valid response and that the generated content is extracted correctly."
+          },
+          {
+            "id": 5,
+            "title": "Store the generated content in the database",
+            "description": "Store the generated content for each DPR section in the `generated_content` table.",
+            "dependencies": [
+              4
+            ],
+            "details": "Use Prisma to insert the generated content into the `generated_content` table, associating it with the corresponding `form_id` and section. Ensure data integrity and proper error handling.",
+            "status": "pending",
+            "testStrategy": "Verify that the generated content is stored correctly in the `generated_content` table. Ensure that the content is associated with the correct `form_id` and section."
+          },
+          {
+            "id": 6,
+            "title": "Handle errors and return response",
+            "description": "Implement error handling throughout the process and return an appropriate success or error message to the client.",
+            "dependencies": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "details": "Implement comprehensive error handling for all potential failure points, including API call failures, database errors, and invalid input. Return informative error messages to the client. Implement logging for debugging purposes.",
+            "status": "pending",
+            "testStrategy": "Simulate various error scenarios (e.g., invalid form ID, API call failure, database error) and verify that the endpoint returns the correct error message. Ensure that errors are logged appropriately."
+          }
+        ]
+      },
+      {
+        "id": 13,
+        "title": "Implement AI content generation API endpoint (single section)",
+        "description": "Create the `/ai/generate-section/{form_id}/{section}` (POST) endpoint in the FastAPI backend to generate a single DPR section using the Gemini API.",
+        "details": "Implement the endpoint using FastAPI. Retrieve the form data. Construct a prompt for the specified section based on the form data and the templates in `/DPR Preparation Tool`. Call the Gemini API to generate the content. Store the generated content in the `generated_content` table. Return a success message or error if generation fails.",
+        "testStrategy": "Send a POST request to `/ai/generate-section/{form_id}/{section}` with a valid JWT token. Verify that the AI-generated content is stored in the database and that a success message is returned.",
+        "priority": "medium",
+        "dependencies": [
+          12
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement FastAPI endpoint for single section generation",
+            "description": "Create the `/ai/generate-section/{form_id}/{section}` (POST) endpoint using FastAPI to handle requests for single section AI content generation.",
+            "dependencies": [],
+            "details": "Define the route, request parameters, and response structure. Implement JWT authentication using existing middleware. Handle potential errors gracefully.",
+            "status": "pending",
+            "testStrategy": "Send a POST request to the endpoint with valid and invalid data. Verify correct response codes and error messages."
+          },
+          {
+            "id": 2,
+            "title": "Retrieve form data for the specified form_id",
+            "description": "Fetch the complete form data from the database based on the `form_id` provided in the request.",
+            "dependencies": [
+              1
+            ],
+            "details": "Use Prisma to query the `dpr_forms` table and retrieve all relevant data for the given `form_id`. Implement error handling if the form does not exist or the user does not have access.",
+            "status": "pending",
+            "testStrategy": "Test with valid and invalid `form_id` values. Verify that the correct form data is retrieved or an appropriate error is returned."
+          },
+          {
+            "id": 3,
+            "title": "Construct prompt for the specified section",
+            "description": "Create a prompt tailored to the specified section using the retrieved form data and templates from `/DPR Preparation Tool`.",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement logic to select the appropriate template based on the `section` parameter. Populate the template with data from the retrieved form. Ensure the prompt is clear and concise for the Gemini API.",
+            "status": "pending",
+            "testStrategy": "Manually inspect the generated prompts for different sections and form data to ensure they are well-formed and relevant."
+          },
+          {
+            "id": 4,
+            "title": "Call Gemini API to generate content",
+            "description": "Send the constructed prompt to the Gemini API and retrieve the generated content.",
+            "dependencies": [
+              3
+            ],
+            "details": "Implement the API call to Gemini. Handle API authentication, rate limiting, and potential errors. Extract the generated content from the API response.",
+            "status": "pending",
+            "testStrategy": "Mock the Gemini API to test different scenarios, including successful content generation and API errors. Verify that the generated content is properly extracted."
+          },
+          {
+            "id": 5,
+            "title": "Store generated content in the database",
+            "description": "Save the generated content in the `generated_content` table, associating it with the corresponding `form_id` and `section`.",
+            "dependencies": [
+              4
+            ],
+            "details": "Use Prisma to insert a new record into the `generated_content` table with the `form_id`, `section`, and generated content. Implement error handling for database operations.",
+            "status": "pending",
+            "testStrategy": "Verify that the generated content is stored correctly in the database with the correct `form_id` and `section`. Check for data integrity and consistency."
+          }
+        ]
+      },
+      {
+        "id": 14,
+        "title": "Implement financial projections calculation API endpoint",
+        "description": "Create the `/financial/calculate/{form_id}` (POST) endpoint in the FastAPI backend to calculate financial projections based on the form data.",
+        "details": "Implement the endpoint using FastAPI. Retrieve the form data. Perform the financial calculations as described in the PRD (revenue projections, cost analysis, profit/loss, ROI, break-even, etc.). Store the projections in the `financial_projections` and `financial_summary` tables. Return a success message or error if calculation fails.",
+        "testStrategy": "Send a POST request to `/financial/calculate/{form_id}` with a valid JWT token. Verify that the financial projections are calculated correctly and stored in the database.",
+        "priority": "high",
+        "dependencies": [
+          10
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement FastAPI endpoint for financial calculations",
+            "description": "Create the `/financial/calculate/{form_id}` (POST) endpoint using FastAPI to handle financial projection requests.",
+            "dependencies": [],
+            "details": "Define the route, request body, and response structure. Implement JWT authentication middleware to protect the endpoint. Handle potential errors gracefully and return appropriate HTTP status codes.",
+            "status": "pending",
+            "testStrategy": "Send a POST request to the endpoint with a valid JWT token and form ID. Verify that the endpoint returns a success message or an appropriate error message if the calculation fails."
+          },
+          {
+            "id": 2,
+            "title": "Retrieve form data from the database",
+            "description": "Retrieve the DPR form data from the database based on the provided `form_id`.",
+            "dependencies": [
+              1
+            ],
+            "details": "Use Prisma to query the `dpr_forms` table and retrieve the form data. Handle cases where the form does not exist or the user does not have permission to access it.",
+            "status": "pending",
+            "testStrategy": "Test with valid and invalid form IDs. Verify that the correct form data is retrieved and that appropriate errors are returned for invalid form IDs or unauthorized access."
+          },
+          {
+            "id": 3,
+            "title": "Perform revenue projections",
+            "description": "Calculate revenue projections based on the retrieved form data and the PRD specifications.",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement the revenue projection calculations as described in the PRD. Consider different revenue streams, growth rates, and market conditions. Ensure the calculations are accurate and well-documented.",
+            "status": "pending",
+            "testStrategy": "Compare the calculated revenue projections with expected values based on sample form data. Verify that the calculations are accurate and consistent with the PRD."
+          },
+          {
+            "id": 4,
+            "title": "Perform cost analysis",
+            "description": "Analyze the costs associated with the project based on the retrieved form data and the PRD specifications.",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement the cost analysis calculations as described in the PRD. Consider fixed costs, variable costs, and other relevant expenses. Ensure the calculations are accurate and well-documented.",
+            "status": "pending",
+            "testStrategy": "Compare the calculated costs with expected values based on sample form data. Verify that the calculations are accurate and consistent with the PRD."
+          },
+          {
+            "id": 5,
+            "title": "Calculate profit/loss, ROI, and break-even point",
+            "description": "Calculate profit/loss, return on investment (ROI), and break-even point based on the revenue projections and cost analysis.",
+            "dependencies": [
+              3,
+              4
+            ],
+            "details": "Implement the calculations for profit/loss, ROI, and break-even point using the results of the revenue projections and cost analysis. Ensure the calculations are accurate and well-documented.",
+            "status": "pending",
+            "testStrategy": "Compare the calculated profit/loss, ROI, and break-even point with expected values based on sample data. Verify that the calculations are accurate and consistent with financial principles."
+          },
+          {
+            "id": 6,
+            "title": "Store financial projections in the database",
+            "description": "Store the calculated financial projections in the `financial_projections` and `financial_summary` tables.",
+            "dependencies": [
+              5
+            ],
+            "details": "Use Prisma to insert the calculated financial projections into the `financial_projections` and `financial_summary` tables. Ensure that the data is stored correctly and that the database schema is properly defined.",
+            "status": "pending",
+            "testStrategy": "Verify that the financial projections are stored correctly in the database by querying the `financial_projections` and `financial_summary` tables. Ensure that the data matches the calculated values."
+          }
+        ]
+      },
+      {
+        "id": 15,
+        "title": "Implement government scheme matching API endpoint",
+        "description": "Create the `/schemes/match/{form_id}` (POST) endpoint in the FastAPI backend to find matching government schemes based on the form data.",
+        "details": "Implement the endpoint using FastAPI. Retrieve the form data. Filter and rank the schemes based on the matching criteria described in the PRD (sector, investment range, state). Return a list of matching schemes.",
+        "testStrategy": "Send a POST request to `/schemes/match/{form_id}` with a valid JWT token. Verify that the correct government schemes are matched based on the form data.",
+        "priority": "medium",
+        "dependencies": [
+          10
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement FastAPI endpoint for scheme matching",
+            "description": "Create the `/schemes/match/{form_id}` (POST) endpoint using FastAPI to handle scheme matching requests.",
+            "dependencies": [],
+            "details": "Define the route, request body (form_id), and response structure using FastAPI. Implement JWT authentication middleware to protect the endpoint.",
+            "status": "pending",
+            "testStrategy": "Send a POST request to `/schemes/match/{form_id}` with a valid JWT token and a sample form_id. Verify that the endpoint returns a 200 OK response."
+          },
+          {
+            "id": 2,
+            "title": "Retrieve form data from the request",
+            "description": "Extract the form data from the incoming POST request to `/schemes/match/{form_id}`.",
+            "dependencies": [
+              1
+            ],
+            "details": "Access the request body using FastAPI's request object and parse the JSON data. Handle potential errors during data extraction.",
+            "status": "pending",
+            "testStrategy": "Send a POST request with different types of form data (valid, invalid, missing fields). Verify that the data is extracted correctly and errors are handled gracefully."
+          },
+          {
+            "id": 3,
+            "title": "Filter schemes based on sector",
+            "description": "Implement the logic to filter government schemes based on the sector specified in the form data.",
+            "dependencies": [
+              2
+            ],
+            "details": "Access the sector information from the extracted form data. Query the database of government schemes and filter based on matching sectors. Handle cases where the sector is not specified or invalid.",
+            "status": "pending",
+            "testStrategy": "Create test cases with different sector values in the form data. Verify that the correct schemes are filtered based on the sector."
+          },
+          {
+            "id": 4,
+            "title": "Filter schemes based on investment range and state",
+            "description": "Implement the logic to filter government schemes based on the investment range and state specified in the form data.",
+            "dependencies": [
+              2,
+              3
+            ],
+            "details": "Access the investment range and state information from the extracted form data. Query the database of government schemes and filter based on matching investment ranges and states. Handle cases where the investment range or state is not specified or invalid.",
+            "status": "pending",
+            "testStrategy": "Create test cases with different investment range and state values in the form data. Verify that the correct schemes are filtered based on the investment range and state."
+          },
+          {
+            "id": 5,
+            "title": "Rank the matching schemes and return the result",
+            "description": "Rank the filtered government schemes based on a predefined ranking algorithm and return the top-ranked schemes.",
+            "dependencies": [
+              4
+            ],
+            "details": "Implement the ranking algorithm based on the criteria defined in the PRD. Sort the filtered schemes based on the ranking score. Return a list of the top-ranked schemes in the response.",
+            "status": "pending",
+            "testStrategy": "Create test cases with different sets of matching schemes. Verify that the schemes are ranked correctly based on the ranking algorithm and the top-ranked schemes are returned."
+          }
+        ]
+      },
+      {
+        "id": 16,
+        "title": "Implement PDF generation API endpoint",
+        "description": "Create the `/pdf/generate/{form_id}` (POST) endpoint in the FastAPI backend to generate a PDF document from the form data.",
+        "details": "Implement the endpoint using FastAPI. Retrieve the form data, AI-generated content, financial projections, and matched schemes. Assemble the HTML template for the PDF. Convert the HTML to PDF using a Python library like WeasyPrint or ReportLab. Upload the PDF to Cloudinary. Save the PDF metadata to the `pdf_documents` table. Return the PDF URL to the frontend.",
+        "testStrategy": "Send a POST request to `/pdf/generate/{form_id}` with a valid JWT token. Verify that a PDF document is generated, uploaded to Cloudinary, and the PDF URL is returned.",
+        "priority": "high",
+        "dependencies": [
+          12,
+          14,
+          15
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement FastAPI endpoint for PDF generation",
+            "description": "Create the `/pdf/generate/{form_id}` (POST) endpoint using FastAPI to handle PDF generation requests.",
+            "dependencies": [],
+            "details": "Define the endpoint using FastAPI, including request validation and error handling. Ensure proper authentication and authorization are in place using JWT middleware.",
+            "status": "pending",
+            "testStrategy": "Send a POST request to the endpoint with a valid form ID and JWT token. Verify that the endpoint returns a success response."
+          },
+          {
+            "id": 2,
+            "title": "Retrieve data for PDF generation",
+            "description": "Retrieve form data, AI-generated content, financial projections, and matched schemes based on the form ID.",
+            "dependencies": [],
+            "details": "Fetch data from the database using Prisma based on the provided form ID. This includes retrieving form details, AI-generated content, financial projections, and matched schemes. Handle cases where data is missing.",
+            "status": "pending",
+            "testStrategy": "Create mock data for form, AI content, financial projections, and schemes. Verify that the retrieval logic correctly fetches and combines this data."
+          },
+          {
+            "id": 3,
+            "title": "Assemble HTML template for PDF",
+            "description": "Assemble the HTML template for the PDF document using the retrieved data.",
+            "dependencies": [
+              2
+            ],
+            "details": "Create an HTML template with placeholders for the retrieved data. Populate the template with the actual data to generate the final HTML content for the PDF.",
+            "status": "pending",
+            "testStrategy": "Manually inspect the generated HTML to ensure that the data is correctly placed within the template and the overall structure is valid."
+          },
+          {
+            "id": 4,
+            "title": "Convert HTML to PDF",
+            "description": "Convert the assembled HTML content to a PDF document using a Python library.",
+            "dependencies": [
+              3
+            ],
+            "details": "Use a library like WeasyPrint or ReportLab to convert the HTML content to PDF format. Handle any potential errors during the conversion process.",
+            "status": "pending",
+            "testStrategy": "Verify that the generated PDF document accurately reflects the content and formatting of the HTML template."
+          },
+          {
+            "id": 5,
+            "title": "Upload PDF to Cloudinary",
+            "description": "Upload the generated PDF document to Cloudinary.",
+            "dependencies": [
+              4
+            ],
+            "details": "Use the Cloudinary API to upload the PDF file. Handle authentication and error handling during the upload process. Store the Cloudinary URL for later use.",
+            "status": "pending",
+            "testStrategy": "Verify that the PDF document is successfully uploaded to Cloudinary and that the returned URL is valid and accessible."
+          },
+          {
+            "id": 6,
+            "title": "Save PDF metadata to database",
+            "description": "Save the PDF metadata (e.g., Cloudinary URL, form ID, timestamp) to the `pdf_documents` table.",
+            "dependencies": [
+              5
+            ],
+            "details": "Create a new record in the `pdf_documents` table using Prisma to store the PDF metadata. Include the Cloudinary URL, form ID, and any other relevant information.",
+            "status": "pending",
+            "testStrategy": "Verify that the PDF metadata is correctly saved to the `pdf_documents` table and that all fields are populated with the correct values."
+          },
+          {
+            "id": 7,
+            "title": "Return PDF URL to frontend",
+            "description": "Return the Cloudinary URL of the generated PDF document to the frontend.",
+            "dependencies": [
+              6
+            ],
+            "details": "Return the Cloudinary URL as part of the API response. Ensure that the response is properly formatted and includes any necessary headers.",
+            "status": "pending",
+            "testStrategy": "Verify that the API response includes the correct Cloudinary URL and that the frontend can successfully access the PDF document using this URL."
+          }
+        ]
+      },
+      {
+        "id": 17,
+        "title": "Create Next.js frontend application",
+        "description": "Set up a Next.js 14 application with TypeScript, shadcn/ui, Tailwind CSS, React Hook Form, and Zustand.",
+        "details": "Create a new Next.js project using `create-next-app`. Install the necessary dependencies (shadcn/ui, Tailwind CSS, React Hook Form, Zustand). Configure Tailwind CSS. Set up the basic project structure.",
+        "testStrategy": "Verify that the Next.js application starts successfully and the basic UI components are rendered correctly.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 18,
+        "title": "Implement user registration and login forms in the frontend",
+        "description": "Create the signup and login pages in the Next.js frontend using React Hook Form and Zod for validation. Integrate with the backend `/auth/register` and `/auth/login` API endpoints.",
+        "details": "Create the signup and login components using React Hook Form. Define Zod schemas for form validation. Send POST requests to the backend API endpoints to register and login users. Store the JWT token in localStorage or cookies upon successful login. Redirect the user to the dashboard after login.",
+        "testStrategy": "Submit the signup and login forms with valid and invalid data. Verify that the forms are validated correctly and that the user is registered and logged in successfully.",
+        "priority": "high",
+        "dependencies": [
+          17,
+          5
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Signup Component",
+            "description": "Implement the signup component in Next.js using React Hook Form.",
+            "dependencies": [],
+            "details": "Develop the signup form with necessary input fields (e.g., name, email, password). Use React Hook Form for form state management and submission handling.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 2,
+            "title": "Create Login Component",
+            "description": "Implement the login component in Next.js using React Hook Form.",
+            "dependencies": [],
+            "details": "Develop the login form with email and password input fields. Use React Hook Form for form state management and submission handling.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 3,
+            "title": "Define Zod Schemas for Validation",
+            "description": "Define Zod schemas for validating the signup and login forms.",
+            "dependencies": [],
+            "details": "Create Zod schemas to validate the input fields in both the signup and login forms, including email format, password strength, and required fields.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 4,
+            "title": "Integrate with Backend API Endpoints",
+            "description": "Integrate the signup and login forms with the backend `/auth/register` and `/auth/login` API endpoints.",
+            "dependencies": [
+              1,
+              2,
+              3
+            ],
+            "details": "Send POST requests to the `/auth/register` and `/auth/login` endpoints with the form data. Handle the responses from the backend and display appropriate error messages.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 5,
+            "title": "Store JWT Token and Redirect User",
+            "description": "Store the JWT token in localStorage or cookies upon successful login and redirect the user to the dashboard.",
+            "dependencies": [
+              4
+            ],
+            "details": "Upon successful login, store the JWT token received from the backend in localStorage or cookies. Redirect the user to the dashboard page.",
+            "status": "pending",
+            "testStrategy": null
+          }
+        ]
+      },
+      {
+        "id": 19,
+        "title": "Implement user dashboard in the frontend",
+        "description": "Create the user dashboard page in the Next.js frontend to display user statistics and a list of recent DPR forms.",
+        "details": "Create the dashboard component. Fetch user statistics from the backend `/analytics/user-stats` API endpoint. Fetch the list of recent DPR forms from the backend `/user/forms` API endpoint. Display the data in a user-friendly format.",
+        "testStrategy": "Verify that the user statistics and the list of recent DPR forms are displayed correctly on the dashboard.",
+        "priority": "medium",
+        "dependencies": [
+          18,
+          11
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 20,
+        "title": "Implement DPR form page in the frontend",
+        "description": "Create the DPR form page in the Next.js frontend with tabbed sections for entrepreneur details, business details, product/service, market analysis, financial details, staffing, and timeline.",
+        "details": "Create the form component with tabbed sections. Use React Hook Form to manage the form state and validation. Integrate with the backend API endpoints to create, update, and retrieve form data. Implement auto-save functionality.",
+        "testStrategy": "Fill out the DPR form with valid and invalid data. Verify that the form is validated correctly and that the data is saved and retrieved successfully.",
+        "priority": "high",
+        "dependencies": [
+          19,
+          9,
+          10
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create DPR form component with tabbed sections",
+            "description": "Develop the main DPR form component using Next.js, structuring it with tabbed sections for different data categories.",
+            "dependencies": [],
+            "details": "Use a UI library like Material UI or Ant Design to create the tabbed interface. Each tab should represent a section of the DPR form (entrepreneur details, business details, etc.).",
+            "status": "pending",
+            "testStrategy": "Manually verify that all tabs are rendered correctly and that navigation between tabs is smooth and intuitive."
+          },
+          {
+            "id": 2,
+            "title": "Manage form state with React Hook Form",
+            "description": "Integrate React Hook Form to manage the form state and handle user input for all fields in the DPR form.",
+            "dependencies": [
+              1
+            ],
+            "details": "Set up React Hook Form with appropriate default values and register all form fields. Implement form submission handling.",
+            "status": "pending",
+            "testStrategy": "Test form submission with valid and invalid data. Verify that the form state is updated correctly and that the submission is handled properly."
+          },
+          {
+            "id": 3,
+            "title": "Implement form validation",
+            "description": "Implement client-side validation for all form fields using React Hook Form's validation capabilities.",
+            "dependencies": [
+              2
+            ],
+            "details": "Define validation rules for each field (e.g., required, email format, number range). Display appropriate error messages to the user.",
+            "status": "pending",
+            "testStrategy": "Test validation rules for all fields with valid and invalid inputs. Verify that error messages are displayed correctly and prevent form submission when necessary."
+          },
+          {
+            "id": 4,
+            "title": "Integrate with backend API to create form data",
+            "description": "Connect the form to the `/form/create` API endpoint to submit new DPR form data to the backend.",
+            "dependencies": [
+              2,
+              3
+            ],
+            "details": "Use `axios` or `fetch` to send a POST request to the `/form/create` endpoint with the form data. Handle success and error responses.",
+            "status": "pending",
+            "testStrategy": "Submit the form with valid data and verify that a new record is created in the `dpr_forms` table in the backend. Check for appropriate error handling."
+          },
+          {
+            "id": 5,
+            "title": "Integrate with backend API to update form data",
+            "description": "Connect the form to the `/form/{form_id}` API endpoint (PUT) to update existing DPR form data in the backend.",
+            "dependencies": [
+              2,
+              3,
+              4
+            ],
+            "details": "Use `axios` or `fetch` to send a PUT request to the `/form/{form_id}` endpoint with the updated form data. Handle success and error responses.",
+            "status": "pending",
+            "testStrategy": "Update an existing form with valid data and verify that the corresponding record in the `dpr_forms` table is updated correctly. Check for appropriate error handling."
+          },
+          {
+            "id": 6,
+            "title": "Integrate with backend API to retrieve form data",
+            "description": "Connect the form to the `/form/{form_id}` API endpoint (GET) to retrieve existing DPR form data from the backend and populate the form.",
+            "dependencies": [
+              1,
+              10
+            ],
+            "details": "Use `axios` or `fetch` to send a GET request to the `/form/{form_id}` endpoint. Populate the form fields with the retrieved data.",
+            "status": "pending",
+            "testStrategy": "Retrieve an existing form and verify that all form fields are populated correctly with the data from the `dpr_forms` table. Check for appropriate error handling."
+          },
+          {
+            "id": 7,
+            "title": "Implement auto-save functionality",
+            "description": "Implement auto-save functionality to automatically save the form data to the backend periodically.",
+            "dependencies": [
+              2,
+              5
+            ],
+            "details": "Use `setInterval` or a similar mechanism to trigger a save operation every few minutes. Store the form data in the backend using the update API endpoint.",
+            "status": "pending",
+            "testStrategy": "Fill out the form and verify that the data is automatically saved to the backend at regular intervals. Simulate network interruptions to ensure data is saved when the connection is restored."
+          }
+        ]
+      },
+      {
+        "id": 21,
+        "title": "Implement AI generation page in the frontend",
+        "description": "Create the AI generation page in the Next.js frontend to display the progress of AI content generation.",
+        "details": "Create the AI generation component. Display a loading spinner and progress messages. Integrate with the backend `/ai/generate-dpr/{form_id}` API endpoint. Redirect the user to the preview page after completion.",
+        "testStrategy": "Verify that the AI generation page displays the progress messages correctly and redirects the user to the preview page after completion.",
+        "priority": "medium",
+        "dependencies": [
+          20,
+          12
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 22,
+        "title": "Implement DPR preview page in the frontend",
+        "description": "Create the DPR preview page in the Next.js frontend to allow users to review the generated DPR before downloading.",
+        "details": "Create the preview component. Fetch the form data, AI-generated content, financial projections, and matched schemes from the backend. Display the data in a user-friendly format. Allow users to edit sections and regenerate content.",
+        "testStrategy": "Verify that the DPR preview page displays the data correctly and allows users to edit sections and regenerate content.",
+        "priority": "high",
+        "dependencies": [
+          21,
+          13,
+          14,
+          15
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create DPR preview component",
+            "description": "Develop the main structure and layout for the DPR preview page using Next.js components.",
+            "dependencies": [],
+            "details": "Implement the basic UI structure with placeholders for data. Use styled-components or Tailwind CSS for styling. Ensure responsiveness.",
+            "status": "pending",
+            "testStrategy": "Manually inspect the component in the browser to ensure the layout is correct."
+          },
+          {
+            "id": 2,
+            "title": "Fetch DPR form data from backend",
+            "description": "Implement API call to fetch the initial form data from the backend.",
+            "dependencies": [],
+            "details": "Use `axios` or `fetch` to make a GET request to the `/form/{form_id}` endpoint. Handle loading and error states. Store the fetched data in component state.",
+            "status": "pending",
+            "testStrategy": "Mock the API response and verify that the component renders the data correctly."
+          },
+          {
+            "id": 3,
+            "title": "Fetch AI-generated content from backend",
+            "description": "Implement API call to fetch the AI-generated content for the DPR.",
+            "dependencies": [],
+            "details": "Make a GET request to the `/ai/content/{form_id}` endpoint. Handle loading and error states. Store the fetched data in component state.",
+            "status": "pending",
+            "testStrategy": "Mock the API response and verify that the component renders the AI-generated content correctly."
+          },
+          {
+            "id": 4,
+            "title": "Fetch financial projections from backend",
+            "description": "Implement API call to fetch the financial projections data.",
+            "dependencies": [],
+            "details": "Make a GET request to the `/financials/{form_id}` endpoint. Handle loading and error states. Store the fetched data in component state.",
+            "status": "pending",
+            "testStrategy": "Mock the API response and verify that the component renders the financial projections correctly."
+          },
+          {
+            "id": 5,
+            "title": "Fetch matched schemes from backend",
+            "description": "Implement API call to fetch the matched schemes data.",
+            "dependencies": [],
+            "details": "Make a GET request to the `/schemes/{form_id}` endpoint. Handle loading and error states. Store the fetched data in component state.",
+            "status": "pending",
+            "testStrategy": "Mock the API response and verify that the component renders the matched schemes correctly."
+          },
+          {
+            "id": 6,
+            "title": "Display data and enable editing",
+            "description": "Display all fetched data in a user-friendly format and allow users to edit sections.",
+            "dependencies": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "details": "Render the fetched data using appropriate UI elements. Implement input fields and controls for editing sections. Implement functionality to regenerate content using AI.",
+            "status": "pending",
+            "testStrategy": "Manually test the editing functionality and verify that changes are reflected correctly. Verify that regenerating content works as expected."
+          }
+        ]
+      },
+      {
+        "id": 23,
+        "title": "Implement PDF download page in the frontend",
+        "description": "Create the PDF download page in the Next.js frontend to allow users to download the completed DPR.",
+        "details": "Create the download component. Fetch the PDF URL from the backend `/pdf/generate/{form_id}` API endpoint. Display a PDF preview. Provide options to download the PDF in different languages and templates.",
+        "testStrategy": "Verify that the PDF download page displays the PDF preview and allows users to download the PDF in different languages and templates.",
+        "priority": "high",
+        "dependencies": [
+          22,
+          16
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 24,
+        "title": "Configure Vercel deployment for the frontend",
+        "description": "Configure Vercel to automatically deploy the Next.js frontend application on git push.",
+        "details": "Create a Vercel project. Connect the project to the GitHub repository. Set the necessary environment variables in the Vercel dashboard.",
+        "testStrategy": "Push code changes to the GitHub repository. Verify that Vercel automatically deploys the changes and that the frontend application is accessible via the Vercel URL.",
+        "priority": "high",
+        "dependencies": [
+          17
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 25,
+        "title": "Configure Railway deployment for the backend",
+        "description": "Configure Railway to automatically deploy the FastAPI backend application on git push.",
+        "details": "Create a Railway project. Connect the project to the GitHub repository. Set the necessary environment variables in the Railway dashboard.",
+        "testStrategy": "Push code changes to the GitHub repository. Verify that Railway automatically deploys the changes and that the backend application is accessible via the Railway URL.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-10-28T08:08:47.483Z",
+      "updated": "2025-10-28T09:47:38.020Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

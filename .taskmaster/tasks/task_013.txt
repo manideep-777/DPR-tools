@@ -1,0 +1,43 @@
+# Task ID: 13
+# Title: Implement AI content generation API endpoint (single section)
+# Status: pending
+# Dependencies: 12
+# Priority: medium
+# Description: Create the `/ai/generate-section/{form_id}/{section}` (POST) endpoint in the FastAPI backend to generate a single DPR section using the Gemini API.
+# Details:
+Implement the endpoint using FastAPI. Retrieve the form data. Construct a prompt for the specified section based on the form data and the templates in `/DPR Preparation Tool`. Call the Gemini API to generate the content. Store the generated content in the `generated_content` table. Return a success message or error if generation fails.
+
+# Test Strategy:
+Send a POST request to `/ai/generate-section/{form_id}/{section}` with a valid JWT token. Verify that the AI-generated content is stored in the database and that a success message is returned.
+
+# Subtasks:
+## 1. Implement FastAPI endpoint for single section generation [pending]
+### Dependencies: None
+### Description: Create the `/ai/generate-section/{form_id}/{section}` (POST) endpoint using FastAPI to handle requests for single section AI content generation.
+### Details:
+Define the route, request parameters, and response structure. Implement JWT authentication using existing middleware. Handle potential errors gracefully.
+
+## 2. Retrieve form data for the specified form_id [pending]
+### Dependencies: 13.1
+### Description: Fetch the complete form data from the database based on the `form_id` provided in the request.
+### Details:
+Use Prisma to query the `dpr_forms` table and retrieve all relevant data for the given `form_id`. Implement error handling if the form does not exist or the user does not have access.
+
+## 3. Construct prompt for the specified section [pending]
+### Dependencies: 13.2
+### Description: Create a prompt tailored to the specified section using the retrieved form data and templates from `/DPR Preparation Tool`.
+### Details:
+Implement logic to select the appropriate template based on the `section` parameter. Populate the template with data from the retrieved form. Ensure the prompt is clear and concise for the Gemini API.
+
+## 4. Call Gemini API to generate content [pending]
+### Dependencies: 13.3
+### Description: Send the constructed prompt to the Gemini API and retrieve the generated content.
+### Details:
+Implement the API call to Gemini. Handle API authentication, rate limiting, and potential errors. Extract the generated content from the API response.
+
+## 5. Store generated content in the database [pending]
+### Dependencies: 13.4
+### Description: Save the generated content in the `generated_content` table, associating it with the corresponding `form_id` and `section`.
+### Details:
+Use Prisma to insert a new record into the `generated_content` table with the `form_id`, `section`, and generated content. Implement error handling for database operations.
+

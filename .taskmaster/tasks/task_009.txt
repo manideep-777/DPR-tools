@@ -1,0 +1,37 @@
+# Task ID: 9
+# Title: Implement DPR form update API endpoints
+# Status: pending
+# Dependencies: 8
+# Priority: medium
+# Description: Create the `/form/{form_id}` (PUT) and `/form/{form_id}/section/{section_name}` (PUT) endpoints in the FastAPI backend to allow users to update entire forms or specific sections.
+# Details:
+Implement the endpoints using FastAPI. Validate user input. Update the corresponding records in the database using Prisma. Ensure that only the owner of the form can update it.
+
+# Test Strategy:
+Send PUT requests to the form update endpoints with valid data and a JWT token. Verify that the form data is updated correctly in the database.
+
+# Subtasks:
+## 1. Implement PUT endpoint for entire form [pending]
+### Dependencies: 9.8
+### Description: Create the `/form/{form_id}` (PUT) endpoint to update the entire DPR form. This involves defining the route, handling the request, and updating the database.
+### Details:
+Use FastAPI to define the PUT route `/form/{form_id}`. Receive the entire form data in the request body. Use Prisma to update the corresponding record in the `dpr_forms` table. Handle potential errors during database updates.
+
+## 2. Implement PUT endpoint for specific sections [pending]
+### Dependencies: 9.8
+### Description: Create the `/form/{form_id}/section/{section_name}` (PUT) endpoint to update specific sections of the DPR form. This involves defining the route, handling the request, and updating the database.
+### Details:
+Use FastAPI to define the PUT route `/form/{form_id}/section/{section_name}`. Receive the section data in the request body. Use Prisma to update the corresponding section in the `dpr_forms` table. Handle potential errors during database updates.
+
+## 3. Validate user input for form updates [pending]
+### Dependencies: 9.1, 9.2
+### Description: Implement input validation for both the entire form update and the section update endpoints to ensure data integrity.
+### Details:
+Use Pydantic models to define the expected structure and data types for the form and section data. Implement validation logic to check for required fields, data type correctness, and any other relevant constraints. Return appropriate error messages for invalid input.
+
+## 4. Ensure only the owner can update the form [pending]
+### Dependencies: 9.6, 9.1, 9.2
+### Description: Implement authorization checks to ensure that only the owner of the form can update it via the PUT endpoints.
+### Details:
+Use the JWT token to identify the user making the request. Retrieve the form from the database using Prisma. Verify that the user ID in the JWT token matches the owner ID of the form. Return an authorization error if the user is not the owner.
+
