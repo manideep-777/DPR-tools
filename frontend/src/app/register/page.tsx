@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,18 +13,29 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuthStore } from "@/lib/store/authStore";
 
-const registerSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string(),
-  full_name: z.string().min(2, "Full name must be at least 2 characters"),
-  phone: z.string().min(10, "Phone number must be at least 10 digits").max(15, "Phone number is too long"),
-  business_type: z.string().optional(),
-  state: z.string().optional(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const passwordRegex = /(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])/; // at least one digit, one lower, one upper
+
+const registerSchema = z
+  .object({
+    email: z.string().email("Invalid email address"),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(passwordRegex, "Password must include upper, lower and a digit"),
+    confirmPassword: z.string(),
+    full_name: z.string().min(2, "Full name must be at least 2 characters"),
+    phone: z
+      .string()
+      .transform((v) => v.replace(/\D/g, ""))
+      .refine((v) => v.length >= 10, "Phone number must have at least 10 digits")
+      .refine((v) => v.length <= 15, "Phone number is too long"),
+    business_type: z.string().optional(),
+    state: z.string().optional(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
@@ -47,10 +57,10 @@ export default function RegisterPage() {
     try {
       const { confirmPassword, ...registerData } = data;
       await registerUser(registerData);
-      toast.success("Registration successful! Redirecting to dashboard...");
       router.push("/dashboard");
     } catch (error: any) {
-      toast.error(error.response?.data?.detail || "Registration failed. Please try again.");
+      // authStore handles toasts centrally; keep console logging for visibility
+      console.error('Registration error (page):', error);
     } finally {
       setIsSubmitting(false);
     }

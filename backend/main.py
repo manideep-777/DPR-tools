@@ -1,4 +1,8 @@
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from starlette.requests import Request as StarletteRequest
+import os
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from prisma import Prisma
@@ -35,6 +39,14 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Environment flag for dev-only logging
+ENV = os.getenv("ENV", os.getenv("PYTHON_ENV", "development"))
+
+# Configure root logger
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("backend")
+
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
@@ -46,6 +58,26 @@ app.add_middleware(
 
 # Include routers with /api prefix
 app.include_router(auth_router, prefix="/api")
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: StarletteRequest, exc: RequestValidationError):
+    """Return 422 and log validation errors in non-production environments."""
+    # Log detailed validation errors during development for easier debugging
+    if ENV != "production":
+        logger.error(f"Request validation error for {request.url}: {exc.errors()}")
+    return JSONResponse(status_code=422, content={"detail": exc.errors()})
+
+
+@app.exception_handler(Exception)
+async def generic_exception_handler(request: StarletteRequest, exc: Exception):
+    """Catch-all exception handler that logs stack traces in dev only."""
+    if ENV != "production":
+        # Log full stack trace for debugging
+        logger.exception(f"Unhandled exception for {request.url}: {str(exc)}")
+    else:
+        logger.error(f"Unhandled exception: {str(exc)}")
+    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
 
 @app.get("/")

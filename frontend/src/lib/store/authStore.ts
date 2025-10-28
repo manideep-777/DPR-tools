@@ -4,6 +4,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { authApi, User } from '../api/auth';
+import { toast } from 'sonner';
 
 interface AuthState {
   user: User | null;
@@ -45,10 +46,24 @@ export const useAuthStore = create<AuthState>()(
           if (response.success && response.access_token && response.user) {
             get().setToken(response.access_token);
             get().setUser(response.user);
+            // Centralized success toast
+            toast.success('Login successful');
           } else {
-            throw new Error(response.message || 'Login failed');
+            const msg = response.message || 'Login failed';
+            toast.error(msg);
+            throw new Error(msg);
           }
         } catch (error: any) {
+          // Parse FastAPI validation errors if present
+          const detail = error?.response?.data?.detail;
+          if (Array.isArray(detail) && detail.length > 0) {
+            const messages = detail.map((d: any) => d.msg || d.message || JSON.stringify(d));
+            toast.error(messages.join('; '));
+          } else if (typeof detail === 'string') {
+            toast.error(detail);
+          } else {
+            toast.error(error?.message || 'Login failed');
+          }
           console.error('Login error:', error);
           throw error;
         } finally {
@@ -62,12 +77,25 @@ export const useAuthStore = create<AuthState>()(
           const response = await authApi.register(data);
           
           if (response.success) {
+            // Centralized success toast for registration
+            toast.success('Registration successful');
             // After registration, log in automatically
             await get().login(data.email, data.password);
           } else {
-            throw new Error(response.message || 'Registration failed');
+            const msg = response.message || 'Registration failed';
+            toast.error(msg);
+            throw new Error(msg);
           }
         } catch (error: any) {
+          const detail = error?.response?.data?.detail;
+          if (Array.isArray(detail) && detail.length > 0) {
+            const messages = detail.map((d: any) => d.msg || d.message || JSON.stringify(d));
+            toast.error(messages.join('; '));
+          } else if (typeof detail === 'string') {
+            toast.error(detail);
+          } else {
+            toast.error(error?.message || 'Registration failed');
+          }
           console.error('Registration error:', error);
           throw error;
         } finally {
@@ -78,6 +106,7 @@ export const useAuthStore = create<AuthState>()(
       logout: () => {
         authApi.logout();
         set({ user: null, token: null, isAuthenticated: false });
+        toast.message('Logged out');
       },
 
       checkAuth: async () => {

@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,10 +37,10 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       await login(data.email, data.password);
-      toast.success("Login successful!");
       router.push("/dashboard");
     } catch (error: any) {
-      toast.error(error.response?.data?.detail || "Login failed. Please try again.");
+      // authStore handles toasts centrally; keep console logging for visibility
+      console.error('Login error (page):', error);
     } finally {
       setIsSubmitting(false);
     }

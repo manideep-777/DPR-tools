@@ -13,3 +13,13 @@ Next steps:
 
 More information in our documentation:
 https://pris.ly/d/getting-started
+
+
+
+
+
+
+(1) Centralize toasts, -- completed
+(2) Enable dev-only backend error logging, -- completed
+(3) Add unit tests, 
+(4) Migrate to cookie-based auth (planned change). 
