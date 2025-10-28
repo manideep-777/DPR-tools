@@ -768,8 +768,51 @@
         "testStrategy": "Verify that the Next.js application starts successfully and the basic UI components are rendered correctly.",
         "priority": "high",
         "dependencies": [],
-        "status": "pending",
-        "subtasks": []
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Next.js project",
+            "description": "Create a new Next.js project using `create-next-app` with TypeScript.",
+            "dependencies": [],
+            "details": "Execute `npx create-next-app@latest --typescript` to initialize the project. Choose a suitable project name and directory. Verify the project creation by navigating into the directory.",
+            "status": "done",
+            "testStrategy": "Verify that the Next.js project is created successfully and the initial project structure is as expected."
+          },
+          {
+            "id": 2,
+            "title": "Install dependencies",
+            "description": "Install shadcn/ui, Tailwind CSS, React Hook Form, and Zustand.",
+            "dependencies": [
+              1
+            ],
+            "details": "Use `npm install` or `yarn add` to install the following packages: `shadcn/ui`, `tailwindcss`, `react-hook-form`, `zustand`, `clsx`, `tailwind-merge`, `zod`.",
+            "status": "done",
+            "testStrategy": "Check that all dependencies are correctly installed by inspecting the `package.json` file and running `npm install` or `yarn install` without errors."
+          },
+          {
+            "id": 3,
+            "title": "Configure Tailwind CSS",
+            "description": "Configure Tailwind CSS and integrate it with the Next.js application.",
+            "dependencies": [
+              2
+            ],
+            "details": "Initialize Tailwind CSS using `npx tailwindcss init -p`. Configure the `tailwind.config.js` file to include the necessary content paths. Add the Tailwind directives to the `globals.css` file.",
+            "status": "done",
+            "testStrategy": "Verify that Tailwind CSS is correctly configured by adding a simple Tailwind class to a component and checking if the styles are applied correctly in the browser."
+          },
+          {
+            "id": 4,
+            "title": "Set up basic project structure",
+            "description": "Set up the basic project structure, including components, pages, and styles directories.",
+            "dependencies": [
+              3
+            ],
+            "details": "Create `components`, `pages`, `lib`, and `styles` directories. Add a basic layout component in the `components` directory. Create a basic page in the `pages` directory. Add global styles in the `styles` directory.",
+            "status": "done",
+            "testStrategy": "Verify that the basic project structure is set up correctly by checking the existence of the directories and files. Ensure that the layout component is rendered correctly on the basic page."
+          }
+        ]
       },
       {
         "id": 18,
@@ -1081,7 +1124,7 @@
     ],
     "metadata": {
       "created": "2025-10-28T08:08:47.483Z",
-      "updated": "2025-10-28T10:22:41.155Z",
+      "updated": "2025-10-28T11:13:13.812Z",
       "description": "Tasks for master context"
     }
   }
