@@ -467,7 +467,7 @@
         "dependencies": [
           12
         ],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -475,7 +475,7 @@
             "description": "Create the `/ai/generate-section/{form_id}/{section}` (POST) endpoint using FastAPI to handle requests for single section AI content generation.",
             "dependencies": [],
             "details": "Define the route, request parameters, and response structure. Implement JWT authentication using existing middleware. Handle potential errors gracefully.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Send a POST request to the endpoint with valid and invalid data. Verify correct response codes and error messages."
           },
           {
@@ -486,7 +486,7 @@
               1
             ],
             "details": "Use Prisma to query the `dpr_forms` table and retrieve all relevant data for the given `form_id`. Implement error handling if the form does not exist or the user does not have access.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with valid and invalid `form_id` values. Verify that the correct form data is retrieved or an appropriate error is returned."
           },
           {
@@ -497,7 +497,7 @@
               2
             ],
             "details": "Implement logic to select the appropriate template based on the `section` parameter. Populate the template with data from the retrieved form. Ensure the prompt is clear and concise for the Gemini API.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Manually inspect the generated prompts for different sections and form data to ensure they are well-formed and relevant."
           },
           {
@@ -508,7 +508,7 @@
               3
             ],
             "details": "Implement the API call to Gemini. Handle API authentication, rate limiting, and potential errors. Extract the generated content from the API response.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Mock the Gemini API to test different scenarios, including successful content generation and API errors. Verify that the generated content is properly extracted."
           },
           {
@@ -519,7 +519,7 @@
               4
             ],
             "details": "Use Prisma to insert a new record into the `generated_content` table with the `form_id`, `section`, and generated content. Implement error handling for database operations.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify that the generated content is stored correctly in the database with the correct `form_id` and `section`. Check for data integrity and consistency."
           }
         ]
@@ -534,7 +534,7 @@
         "dependencies": [
           10
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -542,7 +542,7 @@
             "description": "Create the `/financial/calculate/{form_id}` (POST) endpoint using FastAPI to handle financial projection requests.",
             "dependencies": [],
             "details": "Define the route, request body, and response structure. Implement JWT authentication middleware to protect the endpoint. Handle potential errors gracefully and return appropriate HTTP status codes.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Send a POST request to the endpoint with a valid JWT token and form ID. Verify that the endpoint returns a success message or an appropriate error message if the calculation fails."
           },
           {
@@ -553,7 +553,7 @@
               1
             ],
             "details": "Use Prisma to query the `dpr_forms` table and retrieve the form data. Handle cases where the form does not exist or the user does not have permission to access it.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with valid and invalid form IDs. Verify that the correct form data is retrieved and that appropriate errors are returned for invalid form IDs or unauthorized access."
           },
           {
@@ -564,7 +564,7 @@
               2
             ],
             "details": "Implement the revenue projection calculations as described in the PRD. Consider different revenue streams, growth rates, and market conditions. Ensure the calculations are accurate and well-documented.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Compare the calculated revenue projections with expected values based on sample form data. Verify that the calculations are accurate and consistent with the PRD."
           },
           {
@@ -575,7 +575,7 @@
               2
             ],
             "details": "Implement the cost analysis calculations as described in the PRD. Consider fixed costs, variable costs, and other relevant expenses. Ensure the calculations are accurate and well-documented.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Compare the calculated costs with expected values based on sample form data. Verify that the calculations are accurate and consistent with the PRD."
           },
           {
@@ -587,7 +587,7 @@
               4
             ],
             "details": "Implement the calculations for profit/loss, ROI, and break-even point using the results of the revenue projections and cost analysis. Ensure the calculations are accurate and well-documented.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Compare the calculated profit/loss, ROI, and break-even point with expected values based on sample data. Verify that the calculations are accurate and consistent with financial principles."
           },
           {
@@ -598,7 +598,7 @@
               5
             ],
             "details": "Use Prisma to insert the calculated financial projections into the `financial_projections` and `financial_summary` tables. Ensure that the data is stored correctly and that the database schema is properly defined.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify that the financial projections are stored correctly in the database by querying the `financial_projections` and `financial_summary` tables. Ensure that the data matches the calculated values."
           }
         ]
@@ -1124,7 +1124,7 @@
     ],
     "metadata": {
       "created": "2025-10-28T08:08:47.483Z",
-      "updated": "2025-10-29T09:42:08.735Z",
+      "updated": "2025-10-29T10:29:01.209Z",
       "description": "Tasks for master context"
     }
   }
