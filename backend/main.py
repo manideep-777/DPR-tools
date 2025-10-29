@@ -11,6 +11,7 @@ import uvicorn
 # Import routers
 from routes.auth import router as auth_router
 from routes.profile import router as profile_router
+from routes.form import router as form_router
 
 # Prisma client instance
 prisma = Prisma()
@@ -60,6 +61,7 @@ app.add_middleware(
 # Include routers with /api prefix
 app.include_router(auth_router, prefix="/api")
 app.include_router(profile_router, prefix="/api")
+app.include_router(form_router, prefix="/api")
 
 
 @app.exception_handler(RequestValidationError)
