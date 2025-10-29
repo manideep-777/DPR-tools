@@ -40,7 +40,7 @@ from models.form_models import (
 from typing import Union
 import logging
 from utils.ai_service import ai_service, AVAILABLE_SECTIONS
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -1382,4 +1382,204 @@ async def get_generated_content(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve generated content: {str(e)}"
+        )
+
+
+# ============================================================
+# AI CONTENT GENERATION - SINGLE SECTION
+# ============================================================
+
+@router.post("/{form_id}/generate/{section}", 
+             response_model=AIGenerationResponse,
+             status_code=status.HTTP_201_CREATED,
+             summary="Generate AI content for a single section",
+             description="Generate AI content for one specific DPR section using Google Gemini API")
+async def generate_single_section(
+    form_id: int,
+    section: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Generate AI content for a single DPR section
+    
+    This endpoint generates content for one specific section of the DPR.
+    Useful for regenerating individual sections or selective content generation.
+    
+    Path Parameters:
+    - form_id: The ID of the DPR form
+    - section: The section name (e.g., 'executive_summary', 'market_analysis')
+    
+    Returns:
+    - Generated content with metadata for the requested section
+    """
+    try:
+        # Validate section name
+        if section not in AVAILABLE_SECTIONS:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid section name: {section}. Valid sections are: {', '.join(AVAILABLE_SECTIONS)}"
+            )
+        
+        # Verify form exists and belongs to current user
+        form = await prisma.dprform.find_unique(
+            where={"id": form_id},
+            include={
+                "entrepreneurDetails": True,
+                "businessDetails": True,
+                "productDetails": True,
+                "financialDetails": True,
+                "revenueAssumptions": True,
+                "costDetails": True,
+                "staffingDetails": True,
+                "timelineDetails": True
+            }
+        )
+        
+        if not form:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Form with ID {form_id} not found"
+            )
+        
+        if form.userId != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have permission to access this form"
+            )
+        
+        # Check if form has enough data for AI generation
+        if not form.entrepreneurDetails or not form.businessDetails:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Form must have at least entrepreneur and business details before generating AI content"
+            )
+        
+        logger.info(f"Generating AI content for section '{section}' in form {form_id}")
+        
+        # Prepare form data for AI service
+        form_data = {
+            "business_name": form.businessName,
+            "entrepreneur_details": {
+                "full_name": form.entrepreneurDetails.fullName if form.entrepreneurDetails else None,
+                "education": form.entrepreneurDetails.education if form.entrepreneurDetails else None,
+                "years_of_experience": form.entrepreneurDetails.yearsOfExperience if form.entrepreneurDetails else None,
+                "previous_business_experience": form.entrepreneurDetails.previousBusinessExperience if form.entrepreneurDetails else None,
+                "technical_skills": form.entrepreneurDetails.technicalSkills if form.entrepreneurDetails else None
+            } if form.entrepreneurDetails else {},
+            "business_details": {
+                "business_name": form.businessDetails.businessName if form.businessDetails else None,
+                "sector": form.businessDetails.sector if form.businessDetails else None,
+                "legal_structure": form.businessDetails.legalStructure if form.businessDetails else None,
+                "location": form.businessDetails.location if form.businessDetails else None,
+                "address": form.businessDetails.address if form.businessDetails else None
+            } if form.businessDetails else {},
+            "product_details": {
+                "product_name": form.productDetails.productName if form.productDetails else None,
+                "description": form.productDetails.description if form.productDetails else None,
+                "key_features": form.productDetails.keyFeatures if form.productDetails else [],
+                "target_customers": form.productDetails.targetCustomers if form.productDetails else None,
+                "planned_capacity": form.productDetails.plannedCapacity if form.productDetails else None,
+                "unique_selling_points": form.productDetails.uniqueSellingPoints if form.productDetails else None,
+                "quality_certifications": form.productDetails.qualityCertifications if form.productDetails else None
+            } if form.productDetails else {},
+            "financial_details": {
+                "total_investment_amount": float(form.financialDetails.totalInvestmentAmount) if form.financialDetails else None,
+                "loan_required": float(form.financialDetails.loanRequired) if form.financialDetails else None,
+                "working_capital": float(form.financialDetails.workingCapital) if form.financialDetails else None
+            } if form.financialDetails else {},
+            "revenue_assumptions": {
+                "product_price": float(form.revenueAssumptions.productPrice) if form.revenueAssumptions else None,
+                "monthly_sales_quantity_year1": form.revenueAssumptions.monthlySalesQuantityYear1 if form.revenueAssumptions else None,
+                "monthly_sales_quantity_year2": form.revenueAssumptions.monthlySalesQuantityYear2 if form.revenueAssumptions else None,
+                "monthly_sales_quantity_year3": form.revenueAssumptions.monthlySalesQuantityYear3 if form.revenueAssumptions else None
+            } if form.revenueAssumptions else {},
+            "cost_details": {
+                "marketing_cost_monthly": float(form.costDetails.marketingCostMonthly) if form.costDetails else None
+            } if form.costDetails else {},
+            "staffing_details": {
+                "total_employees": form.staffingDetails.totalEmployees if form.staffingDetails else None
+            } if form.staffingDetails else {},
+            "timeline_details": {
+                "land_acquisition_months": form.timelineDetails.landAcquisitionMonths if form.timelineDetails else None,
+                "construction_months": form.timelineDetails.constructionMonths if form.timelineDetails else None,
+                "machinery_installation_months": form.timelineDetails.machineryInstallationMonths if form.timelineDetails else None,
+                "trial_production_months": form.timelineDetails.trialProductionMonths if form.timelineDetails else None,
+                "commercial_production_start_month": form.timelineDetails.commercialProductionStartMonth if form.timelineDetails else None
+            } if form.timelineDetails else {}
+        }
+        
+        # Temporarily set status to 'generating'
+        await prisma.dprform.update(
+            where={"id": form_id},
+            data={"status": "generating"}
+        )
+        
+        try:
+            # Generate content for the single section
+            generated_text = ai_service.generate_section(section, form_data)
+            
+            if not generated_text:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=f"Failed to generate content for section: {section}"
+                )
+            
+            # Check if this section already exists (for versioning)
+            existing_content = await prisma.generatedcontent.find_first(
+                where={
+                    "formId": form_id,
+                    "sectionName": section
+                },
+                order={"versionNumber": "desc"}
+            )
+            
+            version_number = 1 if not existing_content else existing_content.versionNumber + 1
+            
+            # Store generated content in database
+            generated_content = await prisma.generatedcontent.create(
+                data={
+                    "formId": form_id,
+                    "sectionName": section,
+                    "generatedText": generated_text,
+                    "aiModelUsed": ai_service.get_model_name(),
+                    "confidenceScore": 85,  # Default confidence score
+                    "versionNumber": version_number,
+                    "generatedAt": datetime.now(timezone.utc)
+                }
+            )
+            
+            # Create response
+            section_response = GeneratedSectionResponse(
+                section_name=generated_content.sectionName,
+                generated_text=generated_content.generatedText,
+                ai_model_used=generated_content.aiModelUsed,
+                confidence_score=generated_content.confidenceScore,
+                version_number=generated_content.versionNumber,
+                generated_at=generated_content.generatedAt
+            )
+            
+            logger.info(f"Successfully generated section '{section}' for form {form_id} (version {version_number})")
+            
+            return AIGenerationResponse(
+                success=True,
+                message=f"AI content generated successfully for {section}",
+                form_id=form_id,
+                sections_generated=[section_response],
+                total_sections=1
+            )
+            
+        finally:
+            # Reset status back to 'draft'
+            await prisma.dprform.update(
+                where={"id": form_id},
+                data={"status": "draft"}
+            )
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating single section '{section}' for form {form_id}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate AI content: {str(e)}"
         )
