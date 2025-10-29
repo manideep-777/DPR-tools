@@ -215,7 +215,7 @@
         "dependencies": [
           6
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -225,7 +225,7 @@
               6
             ],
             "details": "Create a FastAPI route for `/user/profile` that retrieves user data from the database using Prisma based on the user ID obtained from the JWT token. Serialize the data and return it as a JSON response.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Send a GET request to `/user/profile` with a valid JWT token. Verify that the correct user profile data is returned in the response."
           },
           {
@@ -237,7 +237,7 @@
               1
             ],
             "details": "Create a FastAPI route for `/user/profile` that accepts a PUT request with the updated user profile data. Validate the data, update the corresponding record in the database using Prisma, and return a success message.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Send a PUT request to `/user/profile` with valid user profile data and a JWT token. Verify that the user profile data is updated correctly in the database."
           },
           {
@@ -250,7 +250,7 @@
               4
             ],
             "details": "Create a FastAPI route for `/user/profile/photo` that accepts a POST request with the profile photo. Upload the photo to Cloudinary, retrieve the URL, update the `user_profiles` table with the new URL using Prisma, and return a success message.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Send a POST request to `/user/profile/photo` with a profile photo and a JWT token. Verify that the photo is uploaded to Cloudinary, the URL is stored in the database, and a success message is returned."
           },
           {
@@ -259,7 +259,7 @@
             "description": "Configure and integrate the FastAPI backend with Cloudinary to handle profile photo uploads.",
             "dependencies": [],
             "details": "Install the Cloudinary Python library. Configure the Cloudinary credentials (API key, API secret, cloud name) in the application settings. Implement a function to upload images to Cloudinary and return the URL.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Upload a test image to Cloudinary using the integration. Verify that the image is uploaded successfully and the correct URL is returned."
           },
           {
@@ -270,7 +270,7 @@
               6
             ],
             "details": "Apply the JWT authentication middleware to the GET, PUT, and POST `/user/profile` endpoints. Ensure that the middleware extracts the user ID from the JWT token and makes it available to the route handlers.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Send requests to the profile endpoints with and without a valid JWT token. Verify that requests without a valid token are rejected and requests with a valid token are processed successfully."
           }
         ]
@@ -1124,7 +1124,7 @@
     ],
     "metadata": {
       "created": "2025-10-28T08:08:47.483Z",
-      "updated": "2025-10-28T11:40:57.435Z",
+      "updated": "2025-10-29T05:09:25.102Z",
       "description": "Tasks for master context"
     }
   }
