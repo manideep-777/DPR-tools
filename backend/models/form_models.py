@@ -410,3 +410,47 @@ class CompleteFormResponse(BaseModel):
                 }
             }
         }
+
+
+class FormListItem(BaseModel):
+    """Response model for form list item"""
+    id: int
+    business_name: str
+    status: str
+    completion_percentage: int
+    created_at: datetime
+    last_modified: datetime
+    
+    class Config:
+        from_attributes = True
+
+
+class UserFormsResponse(BaseModel):
+    """Response model for user's forms list"""
+    total_forms: int
+    forms: List[FormListItem]
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "total_forms": 3,
+                "forms": [
+                    {
+                        "id": 1,
+                        "business_name": "ABC Manufacturing",
+                        "status": "completed",
+                        "completion_percentage": 100,
+                        "created_at": "2025-10-29T00:00:00",
+                        "last_modified": "2025-10-29T12:00:00"
+                    },
+                    {
+                        "id": 2,
+                        "business_name": "XYZ Services",
+                        "status": "draft",
+                        "completion_percentage": 45,
+                        "created_at": "2025-10-28T00:00:00",
+                        "last_modified": "2025-10-28T15:00:00"
+                    }
+                ]
+            }
+        }

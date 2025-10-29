@@ -28,7 +28,9 @@ from models.form_models import (
     RevenueAssumptionsResponse,
     CostDetailsResponse,
     StaffingDetailsResponse,
-    TimelineDetailsResponse
+    TimelineDetailsResponse,
+    FormListItem,
+    UserFormsResponse
 )
 from typing import Union
 import logging
@@ -40,6 +42,62 @@ router = APIRouter(prefix="/form", tags=["DPR Forms"])
 
 # Prisma client
 prisma = Prisma()
+
+
+@router.get("/user/forms", response_model=UserFormsResponse)
+async def get_user_forms(
+    current_user: CurrentUser = Depends(get_current_user)
+):
+    """
+    Get all DPR forms for the authenticated user
+    
+    Args:
+        current_user: Authenticated user from JWT token
+        
+    Returns:
+        UserFormsResponse with total count and list of forms
+        
+    Raises:
+        401: If user not authenticated
+        500: If database error occurs
+    """
+    try:
+        # Connect to database if not connected
+        if not prisma.is_connected():
+            await prisma.connect()
+        
+        # Fetch all forms for the user, ordered by last modified (most recent first)
+        user_forms = await prisma.dprform.find_many(
+            where={"userId": current_user.id},
+            order={"lastModified": "desc"}
+        )
+        
+        # Map to FormListItem objects
+        forms_list = [
+            FormListItem(
+                id=form.id,
+                business_name=form.businessName,
+                status=form.status,
+                completion_percentage=form.completionPercentage,
+                created_at=form.createdAt,
+                last_modified=form.lastModified
+            )
+            for form in user_forms
+        ]
+        
+        logger.info(f"Retrieved {len(forms_list)} forms for user {current_user.id} ({current_user.email})")
+        
+        return UserFormsResponse(
+            total_forms=len(forms_list),
+            forms=forms_list
+        )
+        
+    except Exception as e:
+        logger.error(f"Error retrieving forms for user {current_user.id}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve user forms"
+        )
 
 
 @router.post("/create", response_model=FormCreateResponse, status_code=status.HTTP_201_CREATED)
@@ -487,16 +545,7 @@ async def calculate_completion_percentage(form_id: int) -> int:
 async def update_form_section(
     form_id: int,
     section_name: str,
-    section_data: Union[
-        EntrepreneurDetailsUpdate,
-        BusinessDetailsUpdate,
-        ProductDetailsUpdate,
-        FinancialDetailsUpdate,
-        RevenueAssumptionsUpdate,
-        CostDetailsUpdate,
-        StaffingDetailsUpdate,
-        TimelineDetailsUpdate
-    ],
+    section_data: dict,
     current_user: CurrentUser = Depends(get_current_user)
 ):
     """
@@ -554,14 +603,14 @@ async def update_form_section(
         
         # Map section names to handlers
         section_handlers = {
-            "entrepreneur_details": update_entrepreneur_section,
-            "business_details": update_business_section,
-            "product_details": update_product_section,
-            "financial_details": update_financial_section,
-            "revenue_assumptions": update_revenue_section,
-            "cost_details": update_cost_section,
-            "staffing_details": update_staffing_section,
-            "timeline_details": update_timeline_section
+            "entrepreneur_details": (update_entrepreneur_section, EntrepreneurDetailsUpdate),
+            "business_details": (update_business_section, BusinessDetailsUpdate),
+            "product_details": (update_product_section, ProductDetailsUpdate),
+            "financial_details": (update_financial_section, FinancialDetailsUpdate),
+            "revenue_assumptions": (update_revenue_section, RevenueAssumptionsUpdate),
+            "cost_details": (update_cost_section, CostDetailsUpdate),
+            "staffing_details": (update_staffing_section, StaffingDetailsUpdate),
+            "timeline_details": (update_timeline_section, TimelineDetailsUpdate)
         }
         
         # Validate section name
@@ -571,8 +620,20 @@ async def update_form_section(
                 detail=f"Invalid section name. Allowed: {', '.join(section_handlers.keys())}"
             )
         
+        # Get handler and model for validation
+        handler, model_class = section_handlers[section_name]
+        
+        # Validate and parse the section data
+        try:
+            validated_data = model_class(**section_data)
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid data for section '{section_name}': {str(e)}"
+            )
+        
         # Update the section
-        await section_handlers[section_name](form_id, section_data)
+        await handler(form_id, validated_data)
         
         # Recalculate completion percentage
         completion_percentage = await calculate_completion_percentage(form_id)
