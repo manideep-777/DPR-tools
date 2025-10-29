@@ -8,8 +8,20 @@ from middleware.auth import get_current_user, CurrentUser
 from models.form_models import (
     FormCreateRequest,
     FormCreateResponse,
-    FormResponse
+    FormResponse,
+    FormUpdateRequest,
+    FormUpdateResponse,
+    SectionUpdateResponse,
+    EntrepreneurDetailsUpdate,
+    BusinessDetailsUpdate,
+    ProductDetailsUpdate,
+    FinancialDetailsUpdate,
+    RevenueAssumptionsUpdate,
+    CostDetailsUpdate,
+    StaffingDetailsUpdate,
+    TimelineDetailsUpdate
 )
+from typing import Union
 import logging
 
 # Setup logging
@@ -137,4 +149,680 @@ async def get_form(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to retrieve form"
+        )
+
+
+@router.put("/{form_id}", response_model=FormUpdateResponse)
+async def update_form(
+    form_id: int,
+    form_data: FormUpdateRequest,
+    current_user: CurrentUser = Depends(get_current_user)
+):
+    """
+    Update DPR form's basic information (business_name, status)
+    
+    Args:
+        form_id: ID of the form to update
+        form_data: FormUpdateRequest with fields to update
+        current_user: Authenticated user from JWT token
+        
+    Returns:
+        FormUpdateResponse with updated form details
+        
+    Raises:
+        404: If form not found
+        403: If user doesn't own the form
+        400: If validation fails or no fields to update
+        500: If database error occurs
+    """
+    try:
+        # Connect to database if not connected
+        if not prisma.is_connected():
+            await prisma.connect()
+        
+        # Retrieve form to check ownership
+        form = await prisma.dprform.find_unique(
+            where={"id": form_id}
+        )
+        
+        if form is None:
+            logger.warning(f"Form {form_id} not found for update")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Form not found"
+            )
+        
+        # Check if user owns the form
+        if form.userId != current_user.id:
+            logger.warning(f"User {current_user.id} attempted to update form {form_id} owned by user {form.userId}")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have permission to update this form"
+            )
+        
+        # Build update data (only non-None fields)
+        update_data = {}
+        if form_data.business_name is not None:
+            update_data["businessName"] = form_data.business_name
+        if form_data.status is not None:
+            update_data["status"] = form_data.status
+        
+        # Check if there's anything to update
+        if not update_data:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No fields to update"
+            )
+        
+        # Update form
+        updated_form = await prisma.dprform.update(
+            where={"id": form_id},
+            data=update_data
+        )
+        
+        logger.info(f"Form {form_id} updated by user {current_user.id} ({current_user.email})")
+        
+        return FormUpdateResponse(
+            success=True,
+            message="Form updated successfully",
+            form_id=updated_form.id,
+            business_name=updated_form.businessName,
+            status=updated_form.status,
+            completion_percentage=updated_form.completionPercentage,
+            last_modified=updated_form.lastModified
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating form {form_id}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to update form"
+        )
+
+
+async def calculate_completion_percentage(form_id: int) -> int:
+    """
+    Calculate form completion percentage based on filled sections
+    
+    Args:
+        form_id: ID of the form to calculate for
+        
+    Returns:
+        Completion percentage (0-100)
+    """
+    # Total sections: 8 (entrepreneur, business, product, financial, revenue, cost, staffing, timeline)
+    total_sections = 8
+    completed_sections = 0
+    
+    # Check each section
+    entrepreneur = await prisma.entrepreneurdetails.find_unique(where={"formId": form_id})
+    if entrepreneur:
+        completed_sections += 1
+    
+    business = await prisma.businessdetails.find_unique(where={"formId": form_id})
+    if business:
+        completed_sections += 1
+    
+    product = await prisma.productdetails.find_unique(where={"formId": form_id})
+    if product:
+        completed_sections += 1
+    
+    financial = await prisma.financialdetails.find_unique(where={"formId": form_id})
+    if financial:
+        completed_sections += 1
+    
+    revenue = await prisma.revenueassumptions.find_unique(where={"formId": form_id})
+    if revenue:
+        completed_sections += 1
+    
+    cost = await prisma.costdetails.find_unique(where={"formId": form_id})
+    if cost:
+        completed_sections += 1
+    
+    staffing = await prisma.staffingdetails.find_unique(where={"formId": form_id})
+    if staffing:
+        completed_sections += 1
+    
+    timeline = await prisma.timelinedetails.find_unique(where={"formId": form_id})
+    if timeline:
+        completed_sections += 1
+    
+    return int((completed_sections / total_sections) * 100)
+
+
+@router.put("/{form_id}/section/{section_name}", response_model=SectionUpdateResponse)
+async def update_form_section(
+    form_id: int,
+    section_name: str,
+    section_data: Union[
+        EntrepreneurDetailsUpdate,
+        BusinessDetailsUpdate,
+        ProductDetailsUpdate,
+        FinancialDetailsUpdate,
+        RevenueAssumptionsUpdate,
+        CostDetailsUpdate,
+        StaffingDetailsUpdate,
+        TimelineDetailsUpdate
+    ],
+    current_user: CurrentUser = Depends(get_current_user)
+):
+    """
+    Update a specific section of the DPR form
+    
+    Allowed section names:
+    - entrepreneur_details
+    - business_details
+    - product_details
+    - financial_details
+    - revenue_assumptions
+    - cost_details
+    - staffing_details
+    - timeline_details
+    
+    Args:
+        form_id: ID of the form to update
+        section_name: Name of the section to update
+        section_data: Section-specific update data
+        current_user: Authenticated user from JWT token
+        
+    Returns:
+        SectionUpdateResponse with update confirmation
+        
+    Raises:
+        404: If form not found
+        403: If user doesn't own the form
+        400: If invalid section name or no fields to update
+        500: If database error occurs
+    """
+    try:
+        # Connect to database if not connected
+        if not prisma.is_connected():
+            await prisma.connect()
+        
+        # Retrieve form to check ownership
+        form = await prisma.dprform.find_unique(
+            where={"id": form_id}
+        )
+        
+        if form is None:
+            logger.warning(f"Form {form_id} not found for section update")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Form not found"
+            )
+        
+        # Check if user owns the form
+        if form.userId != current_user.id:
+            logger.warning(f"User {current_user.id} attempted to update section in form {form_id} owned by user {form.userId}")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have permission to update this form"
+            )
+        
+        # Map section names to handlers
+        section_handlers = {
+            "entrepreneur_details": update_entrepreneur_section,
+            "business_details": update_business_section,
+            "product_details": update_product_section,
+            "financial_details": update_financial_section,
+            "revenue_assumptions": update_revenue_section,
+            "cost_details": update_cost_section,
+            "staffing_details": update_staffing_section,
+            "timeline_details": update_timeline_section
+        }
+        
+        # Validate section name
+        if section_name not in section_handlers:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid section name. Allowed: {', '.join(section_handlers.keys())}"
+            )
+        
+        # Update the section
+        await section_handlers[section_name](form_id, section_data)
+        
+        # Recalculate completion percentage
+        completion_percentage = await calculate_completion_percentage(form_id)
+        
+        # Update form's completion percentage
+        updated_form = await prisma.dprform.update(
+            where={"id": form_id},
+            data={"completionPercentage": completion_percentage}
+        )
+        
+        logger.info(f"Section '{section_name}' updated for form {form_id} by user {current_user.id}")
+        
+        return SectionUpdateResponse(
+            success=True,
+            message=f"Section '{section_name}' updated successfully",
+            form_id=form_id,
+            section_name=section_name,
+            completion_percentage=completion_percentage,
+            last_modified=updated_form.lastModified
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating section '{section_name}' for form {form_id}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update section '{section_name}'"
+        )
+
+
+# Section update helper functions
+
+async def update_entrepreneur_section(form_id: int, data: EntrepreneurDetailsUpdate):
+    """Update entrepreneur details section"""
+    update_dict = {}
+    if data.full_name is not None:
+        update_dict["fullName"] = data.full_name
+    if data.date_of_birth is not None:
+        update_dict["dateOfBirth"] = data.date_of_birth
+    if data.education is not None:
+        update_dict["education"] = data.education
+    if data.years_of_experience is not None:
+        update_dict["yearsOfExperience"] = data.years_of_experience
+    if data.previous_business_experience is not None:
+        update_dict["previousBusinessExperience"] = data.previous_business_experience
+    if data.technical_skills is not None:
+        update_dict["technicalSkills"] = data.technical_skills
+    
+    if not update_dict:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No fields to update in entrepreneur_details"
+        )
+    
+    # Check if section exists
+    existing = await prisma.entrepreneurdetails.find_unique(where={"formId": form_id})
+    
+    if existing:
+        # Update existing
+        await prisma.entrepreneurdetails.update(
+            where={"formId": form_id},
+            data=update_dict
+        )
+    else:
+        # Create new (require all mandatory fields)
+        if not all([data.full_name, data.date_of_birth, data.education, data.years_of_experience is not None]):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="First-time creation requires: full_name, date_of_birth, education, years_of_experience"
+            )
+        await prisma.entrepreneurdetails.create(
+            data={
+                "formId": form_id,
+                "fullName": data.full_name,
+                "dateOfBirth": data.date_of_birth,
+                "education": data.education,
+                "yearsOfExperience": data.years_of_experience,
+                "previousBusinessExperience": data.previous_business_experience,
+                "technicalSkills": data.technical_skills
+            }
+        )
+
+
+async def update_business_section(form_id: int, data: BusinessDetailsUpdate):
+    """Update business details section"""
+    update_dict = {}
+    if data.business_name is not None:
+        update_dict["businessName"] = data.business_name
+    if data.sector is not None:
+        update_dict["sector"] = data.sector
+    if data.sub_sector is not None:
+        update_dict["subSector"] = data.sub_sector
+    if data.legal_structure is not None:
+        update_dict["legalStructure"] = data.legal_structure
+    if data.registration_number is not None:
+        update_dict["registrationNumber"] = data.registration_number
+    if data.location is not None:
+        update_dict["location"] = data.location
+    if data.address is not None:
+        update_dict["address"] = data.address
+    
+    if not update_dict:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No fields to update in business_details"
+        )
+    
+    existing = await prisma.businessdetails.find_unique(where={"formId": form_id})
+    
+    if existing:
+        await prisma.businessdetails.update(
+            where={"formId": form_id},
+            data=update_dict
+        )
+    else:
+        if not all([data.business_name, data.sector, data.legal_structure, data.location, data.address]):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="First-time creation requires: business_name, sector, legal_structure, location, address"
+            )
+        await prisma.businessdetails.create(
+            data={
+                "formId": form_id,
+                "businessName": data.business_name,
+                "sector": data.sector,
+                "subSector": data.sub_sector,
+                "legalStructure": data.legal_structure,
+                "registrationNumber": data.registration_number,
+                "location": data.location,
+                "address": data.address
+            }
+        )
+
+
+async def update_product_section(form_id: int, data: ProductDetailsUpdate):
+    """Update product details section"""
+    update_dict = {}
+    if data.product_name is not None:
+        update_dict["productName"] = data.product_name
+    if data.description is not None:
+        update_dict["description"] = data.description
+    if data.key_features is not None:
+        update_dict["keyFeatures"] = data.key_features
+    if data.target_customers is not None:
+        update_dict["targetCustomers"] = data.target_customers
+    if data.current_capacity is not None:
+        update_dict["currentCapacity"] = data.current_capacity
+    if data.planned_capacity is not None:
+        update_dict["plannedCapacity"] = data.planned_capacity
+    if data.unique_selling_points is not None:
+        update_dict["uniqueSellingPoints"] = data.unique_selling_points
+    if data.quality_certifications is not None:
+        update_dict["qualityCertifications"] = data.quality_certifications
+    
+    if not update_dict:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No fields to update in product_details"
+        )
+    
+    existing = await prisma.productdetails.find_unique(where={"formId": form_id})
+    
+    if existing:
+        await prisma.productdetails.update(
+            where={"formId": form_id},
+            data=update_dict
+        )
+    else:
+        if not all([data.product_name, data.description, data.key_features, data.target_customers, data.planned_capacity is not None, data.unique_selling_points]):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="First-time creation requires: product_name, description, key_features, target_customers, planned_capacity, unique_selling_points"
+            )
+        await prisma.productdetails.create(
+            data={
+                "formId": form_id,
+                "productName": data.product_name,
+                "description": data.description,
+                "keyFeatures": data.key_features,
+                "targetCustomers": data.target_customers,
+                "currentCapacity": data.current_capacity,
+                "plannedCapacity": data.planned_capacity,
+                "uniqueSellingPoints": data.unique_selling_points,
+                "qualityCertifications": data.quality_certifications
+            }
+        )
+
+
+async def update_financial_section(form_id: int, data: FinancialDetailsUpdate):
+    """Update financial details section"""
+    update_dict = {}
+    if data.total_investment_amount is not None:
+        update_dict["totalInvestmentAmount"] = data.total_investment_amount
+    if data.land_cost is not None:
+        update_dict["landCost"] = data.land_cost
+    if data.building_cost is not None:
+        update_dict["buildingCost"] = data.building_cost
+    if data.machinery_cost is not None:
+        update_dict["machineryCost"] = data.machinery_cost
+    if data.working_capital is not None:
+        update_dict["workingCapital"] = data.working_capital
+    if data.other_costs is not None:
+        update_dict["otherCosts"] = data.other_costs
+    if data.own_contribution is not None:
+        update_dict["ownContribution"] = data.own_contribution
+    if data.loan_required is not None:
+        update_dict["loanRequired"] = data.loan_required
+    
+    if not update_dict:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No fields to update in financial_details"
+        )
+    
+    existing = await prisma.financialdetails.find_unique(where={"formId": form_id})
+    
+    if existing:
+        await prisma.financialdetails.update(
+            where={"formId": form_id},
+            data=update_dict
+        )
+    else:
+        if not all([
+            data.total_investment_amount is not None, data.land_cost is not None, data.building_cost is not None,
+            data.machinery_cost is not None, data.working_capital is not None, data.other_costs is not None,
+            data.own_contribution is not None, data.loan_required is not None
+        ]):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="First-time creation requires all financial fields"
+            )
+        await prisma.financialdetails.create(
+            data={
+                "formId": form_id,
+                "totalInvestmentAmount": data.total_investment_amount,
+                "landCost": data.land_cost,
+                "buildingCost": data.building_cost,
+                "machineryCost": data.machinery_cost,
+                "workingCapital": data.working_capital,
+                "otherCosts": data.other_costs,
+                "ownContribution": data.own_contribution,
+                "loanRequired": data.loan_required
+            }
+        )
+
+
+async def update_revenue_section(form_id: int, data: RevenueAssumptionsUpdate):
+    """Update revenue assumptions section"""
+    update_dict = {}
+    if data.product_price is not None:
+        update_dict["productPrice"] = data.product_price
+    if data.monthly_sales_quantity_year1 is not None:
+        update_dict["monthlySalesQuantityYear1"] = data.monthly_sales_quantity_year1
+    if data.monthly_sales_quantity_year2 is not None:
+        update_dict["monthlySalesQuantityYear2"] = data.monthly_sales_quantity_year2
+    if data.monthly_sales_quantity_year3 is not None:
+        update_dict["monthlySalesQuantityYear3"] = data.monthly_sales_quantity_year3
+    if data.growth_rate_percentage is not None:
+        update_dict["growthRatePercentage"] = data.growth_rate_percentage
+    
+    if not update_dict:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No fields to update in revenue_assumptions"
+        )
+    
+    existing = await prisma.revenueassumptions.find_unique(where={"formId": form_id})
+    
+    if existing:
+        await prisma.revenueassumptions.update(
+            where={"formId": form_id},
+            data=update_dict
+        )
+    else:
+        if not all([
+            data.product_price is not None, data.monthly_sales_quantity_year1 is not None,
+            data.monthly_sales_quantity_year2 is not None, data.monthly_sales_quantity_year3 is not None,
+            data.growth_rate_percentage is not None
+        ]):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="First-time creation requires all revenue assumption fields"
+            )
+        await prisma.revenueassumptions.create(
+            data={
+                "formId": form_id,
+                "productPrice": data.product_price,
+                "monthlySalesQuantityYear1": data.monthly_sales_quantity_year1,
+                "monthlySalesQuantityYear2": data.monthly_sales_quantity_year2,
+                "monthlySalesQuantityYear3": data.monthly_sales_quantity_year3,
+                "growthRatePercentage": data.growth_rate_percentage
+            }
+        )
+
+
+async def update_cost_section(form_id: int, data: CostDetailsUpdate):
+    """Update cost details section"""
+    update_dict = {}
+    if data.raw_material_cost_monthly is not None:
+        update_dict["rawMaterialCostMonthly"] = data.raw_material_cost_monthly
+    if data.labor_cost_monthly is not None:
+        update_dict["laborCostMonthly"] = data.labor_cost_monthly
+    if data.utilities_cost_monthly is not None:
+        update_dict["utilitiesCostMonthly"] = data.utilities_cost_monthly
+    if data.rent_monthly is not None:
+        update_dict["rentMonthly"] = data.rent_monthly
+    if data.marketing_cost_monthly is not None:
+        update_dict["marketingCostMonthly"] = data.marketing_cost_monthly
+    if data.other_fixed_costs_monthly is not None:
+        update_dict["otherFixedCostsMonthly"] = data.other_fixed_costs_monthly
+    
+    if not update_dict:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No fields to update in cost_details"
+        )
+    
+    existing = await prisma.costdetails.find_unique(where={"formId": form_id})
+    
+    if existing:
+        await prisma.costdetails.update(
+            where={"formId": form_id},
+            data=update_dict
+        )
+    else:
+        if not all([
+            data.raw_material_cost_monthly is not None, data.labor_cost_monthly is not None,
+            data.utilities_cost_monthly is not None, data.rent_monthly is not None,
+            data.marketing_cost_monthly is not None, data.other_fixed_costs_monthly is not None
+        ]):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="First-time creation requires all cost detail fields"
+            )
+        await prisma.costdetails.create(
+            data={
+                "formId": form_id,
+                "rawMaterialCostMonthly": data.raw_material_cost_monthly,
+                "laborCostMonthly": data.labor_cost_monthly,
+                "utilitiesCostMonthly": data.utilities_cost_monthly,
+                "rentMonthly": data.rent_monthly,
+                "marketingCostMonthly": data.marketing_cost_monthly,
+                "otherFixedCostsMonthly": data.other_fixed_costs_monthly
+            }
+        )
+
+
+async def update_staffing_section(form_id: int, data: StaffingDetailsUpdate):
+    """Update staffing details section"""
+    update_dict = {}
+    if data.total_employees is not None:
+        update_dict["totalEmployees"] = data.total_employees
+    if data.management_count is not None:
+        update_dict["managementCount"] = data.management_count
+    if data.technical_staff_count is not None:
+        update_dict["technicalStaffCount"] = data.technical_staff_count
+    if data.support_staff_count is not None:
+        update_dict["supportStaffCount"] = data.support_staff_count
+    if data.average_salary is not None:
+        update_dict["averageSalary"] = data.average_salary
+    
+    if not update_dict:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No fields to update in staffing_details"
+        )
+    
+    existing = await prisma.staffingdetails.find_unique(where={"formId": form_id})
+    
+    if existing:
+        await prisma.staffingdetails.update(
+            where={"formId": form_id},
+            data=update_dict
+        )
+    else:
+        if not all([
+            data.total_employees is not None, data.management_count is not None,
+            data.technical_staff_count is not None, data.support_staff_count is not None,
+            data.average_salary is not None
+        ]):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="First-time creation requires all staffing detail fields"
+            )
+        await prisma.staffingdetails.create(
+            data={
+                "formId": form_id,
+                "totalEmployees": data.total_employees,
+                "managementCount": data.management_count,
+                "technicalStaffCount": data.technical_staff_count,
+                "supportStaffCount": data.support_staff_count,
+                "averageSalary": data.average_salary
+            }
+        )
+
+
+async def update_timeline_section(form_id: int, data: TimelineDetailsUpdate):
+    """Update timeline details section"""
+    update_dict = {}
+    if data.land_acquisition_months is not None:
+        update_dict["landAcquisitionMonths"] = data.land_acquisition_months
+    if data.construction_months is not None:
+        update_dict["constructionMonths"] = data.construction_months
+    if data.machinery_installation_months is not None:
+        update_dict["machineryInstallationMonths"] = data.machinery_installation_months
+    if data.trial_production_months is not None:
+        update_dict["trialProductionMonths"] = data.trial_production_months
+    if data.commercial_production_start_month is not None:
+        update_dict["commercialProductionStartMonth"] = data.commercial_production_start_month
+    
+    if not update_dict:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No fields to update in timeline_details"
+        )
+    
+    existing = await prisma.timelinedetails.find_unique(where={"formId": form_id})
+    
+    if existing:
+        await prisma.timelinedetails.update(
+            where={"formId": form_id},
+            data=update_dict
+        )
+    else:
+        if not all([
+            data.land_acquisition_months is not None, data.construction_months is not None,
+            data.machinery_installation_months is not None, data.trial_production_months is not None,
+            data.commercial_production_start_month is not None
+        ]):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="First-time creation requires all timeline detail fields"
+            )
+        await prisma.timelinedetails.create(
+            data={
+                "formId": form_id,
+                "landAcquisitionMonths": data.land_acquisition_months,
+                "constructionMonths": data.construction_months,
+                "machineryInstallationMonths": data.machinery_installation_months,
+                "trialProductionMonths": data.trial_production_months,
+                "commercialProductionStartMonth": data.commercial_production_start_month
+            }
         )

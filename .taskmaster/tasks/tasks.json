@@ -298,7 +298,7 @@
         "dependencies": [
           8
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -308,7 +308,7 @@
               8
             ],
             "details": "Use FastAPI to define the PUT route `/form/{form_id}`. Receive the entire form data in the request body. Use Prisma to update the corresponding record in the `dpr_forms` table. Handle potential errors during database updates.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Send a PUT request to `/form/{form_id}` with valid form data and a JWT token. Verify that the form data is updated correctly in the database."
           },
           {
@@ -319,7 +319,7 @@
               8
             ],
             "details": "Use FastAPI to define the PUT route `/form/{form_id}/section/{section_name}`. Receive the section data in the request body. Use Prisma to update the corresponding section in the `dpr_forms` table. Handle potential errors during database updates.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Send a PUT request to `/form/{form_id}/section/{section_name}` with valid section data and a JWT token. Verify that the section data is updated correctly in the database."
           },
           {
@@ -331,7 +331,7 @@
               2
             ],
             "details": "Use Pydantic models to define the expected structure and data types for the form and section data. Implement validation logic to check for required fields, data type correctness, and any other relevant constraints. Return appropriate error messages for invalid input.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Send PUT requests to both endpoints with invalid data. Verify that appropriate error messages are returned."
           },
           {
@@ -344,7 +344,7 @@
               2
             ],
             "details": "Use the JWT token to identify the user making the request. Retrieve the form from the database using Prisma. Verify that the user ID in the JWT token matches the owner ID of the form. Return an authorization error if the user is not the owner.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Send PUT requests to both endpoints with a JWT token of a user who is not the owner of the form. Verify that an authorization error is returned. Send PUT requests with the owner's JWT token and verify the update is successful."
           }
         ]
@@ -1124,7 +1124,7 @@
     ],
     "metadata": {
       "created": "2025-10-28T08:08:47.483Z",
-      "updated": "2025-10-29T06:14:28.350Z",
+      "updated": "2025-10-29T06:30:30.487Z",
       "description": "Tasks for master context"
     }
   }
