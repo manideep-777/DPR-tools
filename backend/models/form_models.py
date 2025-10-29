@@ -253,3 +253,160 @@ class SectionUpdateResponse(BaseModel):
     
     class Config:
         from_attributes = True
+
+
+# Complete form retrieval models
+
+class EntrepreneurDetailsResponse(BaseModel):
+    """Response model for Entrepreneur Details"""
+    full_name: str
+    date_of_birth: date
+    education: str
+    years_of_experience: int
+    previous_business_experience: Optional[str] = None
+    technical_skills: Optional[str] = None
+    
+    class Config:
+        from_attributes = True
+
+
+class BusinessDetailsResponse(BaseModel):
+    """Response model for Business Details"""
+    business_name: str
+    sector: str
+    sub_sector: Optional[str] = None
+    legal_structure: str
+    registration_number: Optional[str] = None
+    location: str
+    address: str
+    
+    class Config:
+        from_attributes = True
+
+
+class ProductDetailsResponse(BaseModel):
+    """Response model for Product Details"""
+    product_name: str
+    description: str
+    key_features: List[str]
+    target_customers: str
+    current_capacity: Optional[int] = None
+    planned_capacity: int
+    unique_selling_points: str
+    quality_certifications: Optional[str] = None
+    
+    class Config:
+        from_attributes = True
+
+
+class FinancialDetailsResponse(BaseModel):
+    """Response model for Financial Details"""
+    total_investment_amount: Decimal
+    land_cost: Decimal
+    building_cost: Decimal
+    machinery_cost: Decimal
+    working_capital: Decimal
+    other_costs: Decimal
+    own_contribution: Decimal
+    loan_required: Decimal
+    
+    class Config:
+        from_attributes = True
+
+
+class RevenueAssumptionsResponse(BaseModel):
+    """Response model for Revenue Assumptions"""
+    product_price: Decimal
+    monthly_sales_quantity_year1: int
+    monthly_sales_quantity_year2: int
+    monthly_sales_quantity_year3: int
+    growth_rate_percentage: Decimal
+    
+    class Config:
+        from_attributes = True
+
+
+class CostDetailsResponse(BaseModel):
+    """Response model for Cost Details"""
+    raw_material_cost_monthly: Decimal
+    labor_cost_monthly: Decimal
+    utilities_cost_monthly: Decimal
+    rent_monthly: Decimal
+    marketing_cost_monthly: Decimal
+    other_fixed_costs_monthly: Decimal
+    
+    class Config:
+        from_attributes = True
+
+
+class StaffingDetailsResponse(BaseModel):
+    """Response model for Staffing Details"""
+    total_employees: int
+    management_count: int
+    technical_staff_count: int
+    support_staff_count: int
+    average_salary: Decimal
+    
+    class Config:
+        from_attributes = True
+
+
+class TimelineDetailsResponse(BaseModel):
+    """Response model for Timeline Details"""
+    land_acquisition_months: int
+    construction_months: int
+    machinery_installation_months: int
+    trial_production_months: int
+    commercial_production_start_month: int
+    
+    class Config:
+        from_attributes = True
+
+
+class CompleteFormResponse(BaseModel):
+    """Response model for complete form data with all sections"""
+    # Main form data
+    id: int
+    user_id: int
+    business_name: str
+    status: str
+    completion_percentage: int
+    created_at: datetime
+    last_modified: datetime
+    
+    # All sections (optional - only included if they exist)
+    entrepreneur_details: Optional[EntrepreneurDetailsResponse] = None
+    business_details: Optional[BusinessDetailsResponse] = None
+    product_details: Optional[ProductDetailsResponse] = None
+    financial_details: Optional[FinancialDetailsResponse] = None
+    revenue_assumptions: Optional[RevenueAssumptionsResponse] = None
+    cost_details: Optional[CostDetailsResponse] = None
+    staffing_details: Optional[StaffingDetailsResponse] = None
+    timeline_details: Optional[TimelineDetailsResponse] = None
+    
+    class Config:
+        from_attributes = True
+        json_schema_extra = {
+            "example": {
+                "id": 1,
+                "user_id": 1,
+                "business_name": "ABC Manufacturing",
+                "status": "draft",
+                "completion_percentage": 75,
+                "created_at": "2025-10-29T00:00:00",
+                "last_modified": "2025-10-29T12:00:00",
+                "entrepreneur_details": {
+                    "full_name": "John Doe",
+                    "date_of_birth": "1990-01-15",
+                    "education": "MBA",
+                    "years_of_experience": 8
+                },
+                "business_details": {
+                    "business_name": "ABC Corp",
+                    "sector": "Manufacturing",
+                    "legal_structure": "Pvt Ltd",
+                    "location": "Hyderabad",
+                    "address": "123 Street"
+                }
+            }
+        }

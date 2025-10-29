@@ -19,7 +19,16 @@ from models.form_models import (
     RevenueAssumptionsUpdate,
     CostDetailsUpdate,
     StaffingDetailsUpdate,
-    TimelineDetailsUpdate
+    TimelineDetailsUpdate,
+    CompleteFormResponse,
+    EntrepreneurDetailsResponse,
+    BusinessDetailsResponse,
+    ProductDetailsResponse,
+    FinancialDetailsResponse,
+    RevenueAssumptionsResponse,
+    CostDetailsResponse,
+    StaffingDetailsResponse,
+    TimelineDetailsResponse
 )
 from typing import Union
 import logging
@@ -149,6 +158,188 @@ async def get_form(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to retrieve form"
+        )
+
+
+@router.get("/{form_id}/complete", response_model=CompleteFormResponse)
+async def get_complete_form(
+    form_id: int,
+    current_user: CurrentUser = Depends(get_current_user)
+):
+    """
+    Retrieve complete DPR form data including all sections
+    
+    This endpoint returns the main form data along with all filled sections:
+    - Entrepreneur details
+    - Business details
+    - Product details
+    - Financial details
+    - Revenue assumptions
+    - Cost details
+    - Staffing details
+    - Timeline details
+    
+    Sections that haven't been filled yet will be null in the response.
+    
+    Args:
+        form_id: ID of the form to retrieve
+        current_user: Authenticated user from JWT token
+        
+    Returns:
+        CompleteFormResponse with all form data and sections
+        
+    Raises:
+        404: If form not found
+        403: If user doesn't own the form
+        500: If database error occurs
+    """
+    try:
+        # Connect to database if not connected
+        if not prisma.is_connected():
+            await prisma.connect()
+        
+        # Retrieve form with all related sections
+        form = await prisma.dprform.find_unique(
+            where={"id": form_id},
+            include={
+                "entrepreneurDetails": True,
+                "businessDetails": True,
+                "productDetails": True,
+                "financialDetails": True,
+                "revenueAssumptions": True,
+                "costDetails": True,
+                "staffingDetails": True,
+                "timelineDetails": True
+            }
+        )
+        
+        if form is None:
+            logger.warning(f"Form {form_id} not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Form not found"
+            )
+        
+        # Check if user owns the form
+        if form.userId != current_user.id:
+            logger.warning(f"User {current_user.id} attempted to access form {form_id} owned by user {form.userId}")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have permission to access this form"
+            )
+        
+        # Build complete response
+        response_data = {
+            "id": form.id,
+            "user_id": form.userId,
+            "business_name": form.businessName,
+            "status": form.status,
+            "completion_percentage": form.completionPercentage,
+            "created_at": form.createdAt,
+            "last_modified": form.lastModified
+        }
+        
+        # Add entrepreneur details if exists
+        if form.entrepreneurDetails:
+            response_data["entrepreneur_details"] = EntrepreneurDetailsResponse(
+                full_name=form.entrepreneurDetails.fullName,
+                date_of_birth=form.entrepreneurDetails.dateOfBirth,
+                education=form.entrepreneurDetails.education,
+                years_of_experience=form.entrepreneurDetails.yearsOfExperience,
+                previous_business_experience=form.entrepreneurDetails.previousBusinessExperience,
+                technical_skills=form.entrepreneurDetails.technicalSkills
+            )
+        
+        # Add business details if exists
+        if form.businessDetails:
+            response_data["business_details"] = BusinessDetailsResponse(
+                business_name=form.businessDetails.businessName,
+                sector=form.businessDetails.sector,
+                sub_sector=form.businessDetails.subSector,
+                legal_structure=form.businessDetails.legalStructure,
+                registration_number=form.businessDetails.registrationNumber,
+                location=form.businessDetails.location,
+                address=form.businessDetails.address
+            )
+        
+        # Add product details if exists
+        if form.productDetails:
+            response_data["product_details"] = ProductDetailsResponse(
+                product_name=form.productDetails.productName,
+                description=form.productDetails.description,
+                key_features=form.productDetails.keyFeatures,
+                target_customers=form.productDetails.targetCustomers,
+                current_capacity=form.productDetails.currentCapacity,
+                planned_capacity=form.productDetails.plannedCapacity,
+                unique_selling_points=form.productDetails.uniqueSellingPoints,
+                quality_certifications=form.productDetails.qualityCertifications
+            )
+        
+        # Add financial details if exists
+        if form.financialDetails:
+            response_data["financial_details"] = FinancialDetailsResponse(
+                total_investment_amount=form.financialDetails.totalInvestmentAmount,
+                land_cost=form.financialDetails.landCost,
+                building_cost=form.financialDetails.buildingCost,
+                machinery_cost=form.financialDetails.machineryCost,
+                working_capital=form.financialDetails.workingCapital,
+                other_costs=form.financialDetails.otherCosts,
+                own_contribution=form.financialDetails.ownContribution,
+                loan_required=form.financialDetails.loanRequired
+            )
+        
+        # Add revenue assumptions if exists
+        if form.revenueAssumptions:
+            response_data["revenue_assumptions"] = RevenueAssumptionsResponse(
+                product_price=form.revenueAssumptions.productPrice,
+                monthly_sales_quantity_year1=form.revenueAssumptions.monthlySalesQuantityYear1,
+                monthly_sales_quantity_year2=form.revenueAssumptions.monthlySalesQuantityYear2,
+                monthly_sales_quantity_year3=form.revenueAssumptions.monthlySalesQuantityYear3,
+                growth_rate_percentage=form.revenueAssumptions.growthRatePercentage
+            )
+        
+        # Add cost details if exists
+        if form.costDetails:
+            response_data["cost_details"] = CostDetailsResponse(
+                raw_material_cost_monthly=form.costDetails.rawMaterialCostMonthly,
+                labor_cost_monthly=form.costDetails.laborCostMonthly,
+                utilities_cost_monthly=form.costDetails.utilitiesCostMonthly,
+                rent_monthly=form.costDetails.rentMonthly,
+                marketing_cost_monthly=form.costDetails.marketingCostMonthly,
+                other_fixed_costs_monthly=form.costDetails.otherFixedCostsMonthly
+            )
+        
+        # Add staffing details if exists
+        if form.staffingDetails:
+            response_data["staffing_details"] = StaffingDetailsResponse(
+                total_employees=form.staffingDetails.totalEmployees,
+                management_count=form.staffingDetails.managementCount,
+                technical_staff_count=form.staffingDetails.technicalStaffCount,
+                support_staff_count=form.staffingDetails.supportStaffCount,
+                average_salary=form.staffingDetails.averageSalary
+            )
+        
+        # Add timeline details if exists
+        if form.timelineDetails:
+            response_data["timeline_details"] = TimelineDetailsResponse(
+                land_acquisition_months=form.timelineDetails.landAcquisitionMonths,
+                construction_months=form.timelineDetails.constructionMonths,
+                machinery_installation_months=form.timelineDetails.machineryInstallationMonths,
+                trial_production_months=form.timelineDetails.trialProductionMonths,
+                commercial_production_start_month=form.timelineDetails.commercialProductionStartMonth
+            )
+        
+        logger.info(f"Complete form {form_id} retrieved by user {current_user.id} ({current_user.email})")
+        
+        return CompleteFormResponse(**response_data)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error retrieving complete form {form_id}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve complete form"
         )
 
 
