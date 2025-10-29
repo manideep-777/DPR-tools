@@ -454,3 +454,78 @@ class UserFormsResponse(BaseModel):
                 ]
             }
         }
+
+
+# AI Content Generation Models
+
+class AIGenerationRequest(BaseModel):
+    """Request model for AI content generation"""
+    sections: Optional[List[str]] = Field(
+        None,
+        description="Specific sections to generate. If None, generates all sections."
+    )
+    regenerate: bool = Field(
+        False,
+        description="If True, regenerates existing content. If False, only generates missing sections."
+    )
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "sections": ["executive_summary", "market_analysis"],
+                "regenerate": False
+            }
+        }
+
+
+class GeneratedSectionResponse(BaseModel):
+    """Response model for a single generated section"""
+    section_name: str
+    generated_text: str
+    ai_model_used: str
+    confidence_score: Optional[int] = None
+    version_number: int
+    generated_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+
+class AIGenerationResponse(BaseModel):
+    """Response model for AI content generation"""
+    success: bool
+    message: str
+    form_id: int
+    sections_generated: List[GeneratedSectionResponse]
+    total_sections: int
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "success": True,
+                "message": "AI content generated successfully for 2 sections",
+                "form_id": 1,
+                "total_sections": 2,
+                "sections_generated": [
+                    {
+                        "section_name": "executive_summary",
+                        "generated_text": "This project aims to establish...",
+                        "ai_model_used": "gemini-1.5-flash",
+                        "confidence_score": 85,
+                        "version_number": 1,
+                        "generated_at": "2025-10-29T12:00:00"
+                    }
+                ]
+            }
+        }
+
+
+class GeneratedContentListResponse(BaseModel):
+    """Response model for listing all generated content for a form"""
+    form_id: int
+    business_name: str
+    total_sections: int
+    sections: List[GeneratedSectionResponse]
+    
+    class Config:
+        from_attributes = True

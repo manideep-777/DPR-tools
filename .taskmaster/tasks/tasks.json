@@ -385,7 +385,7 @@
         "dependencies": [
           10
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -393,7 +393,7 @@
             "description": "Create the `/ai/generate-dpr/{form_id}` (POST) endpoint using FastAPI to handle AI content generation requests.",
             "dependencies": [],
             "details": "Define the route, request parameters, and response structure for the endpoint. Implement JWT authentication middleware (Task 6) to secure the endpoint. Ensure proper request validation.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Send a POST request to the endpoint with a valid JWT token and form ID. Verify that the endpoint returns a success message or an appropriate error response."
           },
           {
@@ -404,7 +404,7 @@
               1
             ],
             "details": "Use Prisma to query the `dpr_forms` table and retrieve all relevant data for the specified `form_id`. Handle cases where the form does not exist or the user does not have permission to access it (Task 10).",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify that the correct form data is retrieved for a valid `form_id`. Ensure that an error is returned if the form does not exist or the user does not have permission."
           },
           {
@@ -415,7 +415,7 @@
               2
             ],
             "details": "Load the prompt templates from the `/DPR Preparation Tool` directory. Populate the templates with the relevant data from the retrieved form. Ensure that the prompts are well-formatted and optimized for the Gemini API.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Manually inspect the generated prompts to ensure they are accurate, complete, and well-formatted. Verify that all relevant form data is included in the prompts."
           },
           {
@@ -426,7 +426,7 @@
               3
             ],
             "details": "Implement the API call to the Gemini API using a suitable library (e.g., `google-generativeai`). Handle API authentication, rate limiting, and potential errors. Extract the generated content from the API response.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify that the Gemini API is called with the correct prompts. Ensure that the API returns a valid response and that the generated content is extracted correctly."
           },
           {
@@ -437,7 +437,7 @@
               4
             ],
             "details": "Use Prisma to insert the generated content into the `generated_content` table, associating it with the corresponding `form_id` and section. Ensure data integrity and proper error handling.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify that the generated content is stored correctly in the `generated_content` table. Ensure that the content is associated with the correct `form_id` and section."
           },
           {
@@ -452,7 +452,7 @@
               5
             ],
             "details": "Implement comprehensive error handling for all potential failure points, including API call failures, database errors, and invalid input. Return informative error messages to the client. Implement logging for debugging purposes.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Simulate various error scenarios (e.g., invalid form ID, API call failure, database error) and verify that the endpoint returns the correct error message. Ensure that errors are logged appropriately."
           }
         ]
@@ -1124,7 +1124,7 @@
     ],
     "metadata": {
       "created": "2025-10-28T08:08:47.483Z",
-      "updated": "2025-10-29T07:12:25.918Z",
+      "updated": "2025-10-29T09:24:26.790Z",
       "description": "Tasks for master context"
     }
   }
