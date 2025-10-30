@@ -120,3 +120,463 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+
+/* ========================================
+   Google Translate Widget Customization
+   ======================================== */
+
+/* 
+  Translation Control:
+  - Add class "notranslate" to any element that should NOT be translated
+  - Navigation, buttons, form labels should have "notranslate" class
+  - Only user-generated content (DPR sections, scheme descriptions) should be translated
+  
+  Example:
+  <div className="notranslate">This stays in English</div>
+  <div>This will be translated to Telugu</div>
+*/
+
+/* Hide the top Google Translate banner frame that appears after translation */
+body > .skiptranslate {
+  display: none !important;
+}
+
+body {
+  top: 0 !important; /* Prevent body from being pushed down by Google banner */
+}
+
+/* Clean up the translate dropdown widget */
+/* Container styling is handled inline in layout.tsx */
+
+/* Hide the "Powered by Google" logo and text */
+.goog-logo-link {
+  display: none !important;
+}
+
+.goog-te-gadget {
+  color: transparent !important; /* Hide any background text */
+  font-size: 0 !important;
+}
+
+/* Style the dropdown select element */
+.goog-te-gadget .goog-te-combo {
+  margin: 0 !important;
+  padding: 6px 10px !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  font-family: inherit !important;
+  color: #374151 !important;
+  background-color: white !important;
+  cursor: pointer !important;
+  outline: none !important;
+}
+
+.goog-te-gadget .goog-te-combo:hover {
+  border-color: #9ca3af !important;
+}
+
+.goog-te-gadget .goog-te-combo:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+}
+
+/* Remove the Google Translate attribution span */
+.goog-te-gadget span {
+  display: none !important;
+}
+
+/* Show only the select dropdown */
+.goog-te-gadget > span > span {
+  display: none !important;
+}
+
+.goog-te-gadget > div {
+  display: inline-block !important;
+}
+
+/* Dark mode support for the widget container */
+/* .dark #google_translate_element {
+  background-color: oklch(0.205 0 0) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+}
+
+.dark .goog-te-gadget .goog-te-combo {
+  background-color: oklch(0.269 0 0) !important;
+  color: oklch(0.985 0 0) !important;
+  border-color: oklch(1 0 0 / 10%) !important;
+}
+
+.dark .goog-te-gadget .goog-te-combo:hover {
+  border-color: oklch(0.556 0 0) !important;
+} */
+
+/* Ensure translated content doesn't break layout */
+/* .translated-ltr {
+  direction: ltr !important;
+}
+
+.translated-rtl {
+  direction: rtl !important;
+} */
+
+/* Fix any font issues with translated text */
+/* font[style*="vertical-align: inherit;"] {
+  all: inherit !important;
+} */
+
+/* ========================================
+   Layout Preservation During Translation
+   ======================================== */
+
+/* Prevent layout shifts when text is wrapped in <font> tags by Google Translate */
+/* font {
+  font-family: inherit !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  line-height: inherit !important;
+  color: inherit !important;
+  background: inherit !important;
+  text-align: inherit !important;
+  display: inherit !important;
+  vertical-align: inherit !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+} */
+
+/* Ensure buttons maintain their size and don't overflow */
+/* button font,
+.button font,
+[role="button"] font {
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  hyphens: auto !important;
+} */
+
+/* Preserve flex layouts during translation */
+/* .flex font,
+[style*="display: flex"] font,
+[class*="flex"] font {
+  display: inline !important;
+  flex-shrink: 1 !important;
+} */
+
+/* Preserve grid layouts during translation */
+/* .grid font,
+[style*="display: grid"] font,
+[class*="grid"] font {
+  display: inline !important;
+} */
+
+/* Prevent navigation items from breaking */
+/* nav font,
+nav a font,
+.nav font {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+} */
+
+/* Allow nav items to wrap on small screens */
+/* @media (max-width: 768px) {
+  nav font,
+  nav a font,
+  .nav font {
+    white-space: normal !important;
+    word-break: break-word !important;
+  }
+} */
+
+/* Preserve card layouts */
+/* .card font,
+[class*="card"] font {
+  display: inherit !important;
+  max-width: 100% !important;
+} */
+
+/* Prevent table layouts from breaking */
+/* table font,
+td font,
+th font {
+  display: inline !important;
+  word-break: break-word !important;
+} */
+
+/* Preserve heading sizes */
+/* h1 font, h2 font, h3 font, h4 font, h5 font, h6 font {
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  line-height: inherit !important;
+  letter-spacing: inherit !important;
+} */
+
+/* Fix input and form elements */
+/* input font,
+textarea font,
+select font,
+label font {
+  display: inline !important;
+  white-space: normal !important;
+} */
+
+/* Preserve sidebar layouts */
+/* aside font,
+.sidebar font,
+[class*="sidebar"] font {
+  display: inherit !important;
+  overflow-wrap: break-word !important;
+} */
+
+/* Fix badge and tag elements */
+/* .badge font,
+.tag font,
+[class*="badge"] font,
+[class*="tag"] font {
+  white-space: nowrap !important;
+  font-size: inherit !important;
+} */
+
+/* Preserve tooltip and popover content */
+/* [role="tooltip"] font,
+.tooltip font,
+.popover font {
+  white-space: normal !important;
+  max-width: 100% !important;
+} */
+
+/* Fix modal and dialog headers */
+/* [role="dialog"] font,
+.modal font,
+.dialog font {
+  display: inherit !important;
+  word-wrap: break-word !important;
+} */
+
+/* Ensure responsive containers work with translation */
+/* .container font,
+[class*="container"] font {
+  max-width: 100% !important;
+  overflow-wrap: break-word !important;
+} */
+
+/* Prevent overflow in fixed-width elements */
+/* [style*="width:"] font,
+[style*="max-width:"] font {
+  display: inline !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+} */
+
+/* Preserve text alignment */
+/* .text-left font { text-align: left !important; }
+.text-center font { text-align: center !important; }
+.text-right font { text-align: right !important; }
+.text-justify font { text-align: justify !important; } */
+
+/* Fix truncated text elements */
+/* .truncate font,
+[class*="truncate"] font {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 100% !important;
+} */
+
+/* Preserve icon + text layouts */
+/* .icon + font,
+font + .icon,
+svg + font,
+font + svg {
+  display: inline !important;
+  vertical-align: middle !important;
+} */
+
+/* Fix dropdown menus */
+/* [role="menu"] font,
+[role="menuitem"] font,
+.dropdown font,
+.menu font {
+  white-space: normal !important;
+  word-break: break-word !important;
+  display: inline !important;
+} */
+
+/* Ensure proper spacing is maintained */
+/* * + font,
+font + * {
+  margin: inherit !important;
+} */
+
+/* Fix absolute/fixed positioned elements */
+/* [style*="position: absolute"] font,
+[style*="position: fixed"] font,
+.absolute font,
+.fixed font {
+  position: static !important;
+  display: inline !important;
+} */
+
+/* Preserve line clamping */
+/* [style*="-webkit-line-clamp"] font,
+.line-clamp font,
+[class*="line-clamp"] font {
+  display: inline !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+} */
+
+/* Fix z-index issues */
+/* font {
+  z-index: inherit !important;
+} */
+
+/* Smooth transition when translation happens */
+/* body * { */
+  /* transition: none !important;  */
+  /* Disable transitions during translation to prevent jarring animations */
+/* } */
+
+/* Re-enable transitions after 1 second (after translation completes) */
+/* body.translated * {
+  transition: all 0.2s ease !important;
+} */
+
+/* Force proper word wrapping for Telugu text */
+/* html:lang(te) *,
+html:lang(te) font {
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  hyphens: auto !important;
+  -webkit-hyphens: auto !important;
+  -moz-hyphens: auto !important;
+} */
+
+/* Prevent Telugu text from causing horizontal scroll */
+/* html:lang(te) body {
+  overflow-x: hidden !important;
+}
+
+html:lang(te) * {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+} */
+
+/* Fix specific UI components that might break */
+/* html:lang(te) button,
+html:lang(te) .btn,
+html:lang(te) [role="button"] {
+  padding: 0.5rem 1rem !important;
+  white-space: normal !important;
+  min-height: 2.5rem !important;
+  line-height: 1.5 !important;
+}
+
+html:lang(te) nav a,
+html:lang(te) .nav-link {
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.9rem !important;
+} */
+
+/* Fix form labels */
+/* html:lang(te) label {
+  display: block !important;
+  margin-bottom: 0.25rem !important;
+  word-break: break-word !important;
+} */
+
+/* Adjust font size slightly for Telugu to fit better */
+/* html:lang(te) {
+  font-size: 95% !important;
+} */
+
+/* Ensure images and media don't shift */
+/* img, video, iframe, canvas, svg {
+  max-width: 100% !important;
+  height: auto !important;
+  display: block !important;
+} */
+
+/* Fix for PDF content */
+/* html:lang(te) .pdf-content-body,
+html:lang(te) .pdf-section-content {
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+  hyphens: auto !important;
+} */
+
+/* ========================================
+   Dashboard & Card Specific Fixes
+   ======================================== */
+
+/* Ensure card titles and content don't overflow */
+/* html:lang(te) [class*="card"] {
+  overflow: hidden !important;
+}
+
+html:lang(te) [class*="card"] h1,
+html:lang(te) [class*="card"] h2,
+html:lang(te) [class*="card"] h3,
+html:lang(te) [class*="card"] h4,
+html:lang(te) [class*="card"] p {
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+  hyphens: auto !important;
+} */
+
+/* Fix for statistics cards with numbers */
+/* html:lang(te) [class*="card"] [class*="text-3xl"],
+html:lang(te) [class*="card"] [class*="text-2xl"],
+html:lang(te) [class*="card"] [class*="font-bold"] {
+  white-space: normal !important;
+  word-spacing: normal !important;
+} */
+
+/* Ensure grid layouts work properly with Telugu text */
+/* html:lang(te) [class*="grid"] {
+  gap: 1rem !important;
+}
+
+html:lang(te) [class*="grid"] > * {
+  min-width: 0 !important;
+  overflow: hidden !important;
+} */
+
+/* Fix for flex containers */
+/* html:lang(te) [class*="flex"] {
+  flex-wrap: wrap !important;
+  gap: 0.5rem !important;
+}
+
+html:lang(te) [class*="flex"] > * {
+  flex-shrink: 1 !important;
+  min-width: 0 !important;
+} */
+
+/* Ensure badges and pills don't break */
+/* html:lang(te) [class*="badge"],
+html:lang(te) [class*="pill"] {
+  white-space: normal !important;
+  padding: 0.25rem 0.75rem !important;
+  line-height: 1.5 !important;
+} */
+
+/* Fix for modal and dialog content */
+/* html:lang(te) [role="dialog"] *,
+html:lang(te) [class*="dialog"] * {
+  max-width: 100% !important;
+  overflow-wrap: break-word !important;
+} */
+
+/* Smooth transition when switching languages */
+/* html:not(.translated) * {
+  transition: none !important;
+}
+
+html.translated * {
+  transition: all 0.2s ease !important;
+} */
+
