@@ -1,0 +1,37 @@
+services:
+  # Web Service - FastAPI Backend
+  - type: web
+    name: dpr-backend
+    runtime: python
+    env: python
+    region: oregon  # Choose: oregon, frankfurt, singapore, ohio, oregon
+    plan: free  # Options: free, starter ($7/mo), standard ($25/mo), pro ($85/mo)
+    buildCommand: bash render-build.sh
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: ENV
+        value: production
+      - key: PYTHON_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: dpr-database
+          property: connectionString
+      - key: GOOGLE_API_KEY
+        sync: false  # Set manually in Render dashboard
+      - key: ALLOWED_ORIGINS
+        value: http://localhost:3000,https://your-frontend-url.vercel.app
+    healthCheckPath: /
+    autoDeploy: true  # Auto-deploy on git push
+
+  # PostgreSQL Database
+  - type: pserv
+    name: dpr-database
+    runtime: postgresql
+    plan: free  # Options: free (expires in 90 days), starter ($7/mo), standard ($20/mo)
+    databaseName: dpr_db
+    databaseUser: dpr_user
+    region: oregon  # Should match web service region
+    ipAllowList: []  # Empty = allow all IPs (web service needs access)
