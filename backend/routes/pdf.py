@@ -7,11 +7,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from prisma import Prisma
 from middleware.auth import get_current_user
-from playwright.async_api import async_playwright
+from playwright.sync_api import sync_playwright
 import os
 import logging
 from datetime import datetime
 from typing import Optional
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 router = APIRouter(prefix="/pdf", tags=["PDF Generation"])
 logger = logging.getLogger(__name__)
@@ -21,7 +23,7 @@ async def generate_pdf(
     form_id: int,
     language: str = "english",
     template_type: str = "professional",
-    current_user: dict = Depends(get_current_user)
+    current_user = Depends(get_current_user)
 ):
     """
     Generate PDF document from DPR form data using Playwright
@@ -40,7 +42,7 @@ async def generate_pdf(
     
     try:
         # Step 1: Retrieve all data for PDF generation
-        logger.info(f"Generating PDF for form {form_id} by user {current_user['user_id']}")
+        logger.info(f"Generating PDF for form {form_id} by user {current_user.id}")
         
         # Fetch complete form data with all relations
         form = await db.dprform.find_unique(
@@ -65,7 +67,7 @@ async def generate_pdf(
             raise HTTPException(status_code=404, detail="Form not found")
         
         # Verify ownership
-        if form.userId != current_user["user_id"]:
+        if form.userId != current_user.id:
             raise HTTPException(status_code=403, detail="Not authorized to generate PDF for this form")
         
         # Fetch matched schemes
@@ -76,7 +78,7 @@ async def generate_pdf(
         
         # Step 2: Determine frontend URL for rendering
         frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
-        pdf_render_url = f"{frontend_url}/preview/{form_id}?print=true"
+        pdf_render_url = f"{frontend_url}/pdf/{form_id}"
         
         logger.info(f"Rendering PDF from URL: {pdf_render_url}")
         
@@ -84,45 +86,52 @@ async def generate_pdf(
         pdf_filename = f"DPR_{form.businessName.replace(' ', '_')}_{form_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
         pdf_path = os.path.join("uploads", pdf_filename)
         
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
-            context = await browser.new_context(
-                viewport={"width": 1920, "height": 1080},
-                device_scale_factor=2
-            )
-            page = await context.new_page()
-            
-            # Navigate to the preview page
-            try:
-                await page.goto(pdf_render_url, wait_until="networkidle", timeout=60000)
-                
-                # Wait for content to load
-                await page.wait_for_selector("body", timeout=30000)
-                
-                # Optional: Wait a bit more for dynamic content
-                await page.wait_for_timeout(2000)
-                
-                # Generate PDF
-                await page.pdf(
-                    path=pdf_path,
-                    format="A4",
-                    print_background=True,
-                    margin={
-                        "top": "20mm",
-                        "right": "15mm",
-                        "bottom": "20mm",
-                        "left": "15mm"
-                    },
-                    prefer_css_page_size=False
-                )
-                
-                logger.info(f"PDF generated successfully: {pdf_path}")
-                
-            except Exception as e:
-                logger.error(f"Error generating PDF with Playwright: {str(e)}")
-                raise HTTPException(status_code=500, detail=f"PDF generation failed: {str(e)}")
-            finally:
-                await browser.close()
+        # Define synchronous PDF generation function for thread pool
+        def generate_pdf_sync():
+            with sync_playwright() as p:
+                browser = p.chromium.launch(headless=True)
+                try:
+                    context = browser.new_context(
+                        viewport={"width": 1920, "height": 1080},
+                        device_scale_factor=2
+                    )
+                    page = context.new_page()
+                    
+                    # Navigate to the preview page
+                    page.goto(pdf_render_url, wait_until="networkidle", timeout=60000)
+                    
+                    # Wait for content to load
+                    page.wait_for_selector("body", timeout=30000)
+                    
+                    # Optional: Wait a bit more for dynamic content
+                    page.wait_for_timeout(2000)
+                    
+                    # Generate PDF
+                    page.pdf(
+                        path=pdf_path,
+                        format="A4",
+                        print_background=True,
+                        margin={
+                            "top": "20mm",
+                            "right": "15mm",
+                            "bottom": "20mm",
+                            "left": "15mm"
+                        },
+                        prefer_css_page_size=False
+                    )
+                    
+                    logger.info(f"PDF generated successfully: {pdf_path}")
+                    
+                except Exception as e:
+                    logger.error(f"Error generating PDF with Playwright: {str(e)}")
+                    raise HTTPException(status_code=500, detail=f"PDF generation failed: {str(e)}")
+                finally:
+                    browser.close()
+        
+        # Run Playwright in thread pool to avoid Windows asyncio subprocess issues
+        loop = asyncio.get_event_loop()
+        with ThreadPoolExecutor() as executor:
+            await loop.run_in_executor(executor, generate_pdf_sync)
         
         # Step 4: Get PDF file information
         pdf_url = f"/uploads/{pdf_filename}"
@@ -174,7 +183,7 @@ async def generate_pdf(
 @router.get("/{pdf_id}")
 async def get_pdf_details(
     pdf_id: int,
-    current_user: dict = Depends(get_current_user)
+    current_user = Depends(get_current_user)
 ):
     """
     Get PDF document details
@@ -199,7 +208,7 @@ async def get_pdf_details(
             raise HTTPException(status_code=404, detail="PDF not found")
         
         # Verify ownership
-        if pdf_document.form.userId != current_user["user_id"]:
+        if pdf_document.form.userId != current_user.id:
             raise HTTPException(status_code=403, detail="Not authorized to access this PDF")
         
         # Increment download count
@@ -239,7 +248,7 @@ async def get_pdf_details(
 @router.get("/form/{form_id}/list")
 async def list_form_pdfs(
     form_id: int,
-    current_user: dict = Depends(get_current_user)
+    current_user = Depends(get_current_user)
 ):
     """
     List all PDFs generated for a specific form
@@ -261,7 +270,7 @@ async def list_form_pdfs(
         if not form:
             raise HTTPException(status_code=404, detail="Form not found")
         
-        if form.userId != current_user["user_id"]:
+        if form.userId != current_user.id:
             raise HTTPException(status_code=403, detail="Not authorized to access this form")
         
         # Get all PDFs for this form

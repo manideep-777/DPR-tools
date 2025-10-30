@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request as StarletteRequest
 import os
 from fastapi.middleware.cors import CORSMiddleware
@@ -70,6 +71,11 @@ app.include_router(financial_router, prefix="/api")
 app.include_router(analytics_router, prefix="/api")
 app.include_router(schemes_router, prefix="/api")
 app.include_router(pdf_router, prefix="/api")
+
+# Mount static files for PDF downloads
+uploads_dir = os.path.join(os.path.dirname(__file__), "uploads")
+if os.path.exists(uploads_dir):
+    app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
 
 
 @app.exception_handler(RequestValidationError)

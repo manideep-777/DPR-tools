@@ -19,6 +19,11 @@ export default function Navbar() {
     router.push('/login');
   };
 
+  // Hide navbar on PDF routes
+  if (pathname?.startsWith('/pdf')) {
+    return null;
+  }
+
   return (
     <nav className="border-b bg-white">
       <div className="container mx-auto px-4 py-4">

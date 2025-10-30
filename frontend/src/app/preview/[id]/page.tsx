@@ -95,6 +95,8 @@ export default function PreviewPage() {
   const [editPrompt, setEditPrompt] = useState("");
   const [regenerating, setRegenerating] = useState(false);
   const [activeTab, setActiveTab] = useState("ai-content");
+  const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAllData();
@@ -336,6 +338,61 @@ export default function PreviewPage() {
     }
   };
 
+  const handleGeneratePdf = async () => {
+    setGeneratingPdf(true);
+    try {
+      const token = getValidToken();
+      
+      if (!token) {
+        router.push("/login");
+        return;
+      }
+
+      const response = await fetch(`http://localhost:8000/api/pdf/generate/${formId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          language: "english",
+          template_type: "professional"
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate PDF");
+      }
+
+      const data = await response.json();
+      
+      toast({
+        title: "Success",
+        description: "PDF generated successfully!",
+      });
+
+      // Set the PDF URL for download
+      setPdfUrl(`http://localhost:8000${data.data.pdfUrl}`);
+      
+      // Automatically download the PDF
+      const link = document.createElement('a');
+      link.href = `http://localhost:8000${data.data.pdfUrl}`;
+      link.download = data.data.fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate PDF",
+        variant: "destructive",
+      });
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto max-w-6xl py-8">
@@ -361,10 +418,27 @@ export default function PreviewPage() {
         </Button>
 
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => window.print()}>
-            <Download className="mr-2 h-4 w-4" />
-            Print/Save as PDF
+          <Button 
+            variant="default" 
+            onClick={handleGeneratePdf}
+            disabled={generatingPdf}
+          >
+            {generatingPdf ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Generating PDF...
+              </>
+            ) : (
+              <>
+                <Download className="mr-2 h-4 w-4" />
+                Download PDF
+              </>
+            )}
           </Button>
+          {/* <Button variant="outline" onClick={() => window.print()}>
+            <FileText className="mr-2 h-4 w-4" />
+            Print
+          </Button> */}
         </div>
       </div>
 

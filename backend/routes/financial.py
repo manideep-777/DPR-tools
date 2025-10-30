@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from prisma import Prisma
 from decimal import Decimal
 from datetime import datetime, timezone
-from middleware.auth import get_current_user, CurrentUser
+from middleware.auth import get_current_user, get_optional_user, CurrentUser
 from pydantic import BaseModel
 from typing import List, Optional
 import logging
@@ -451,7 +451,7 @@ async def get_financial_projections(
             description="Retrieve financial summary metrics (ROI, NPV, break-even, etc.)")
 async def get_financial_summary(
     form_id: int,
-    current_user: dict = Depends(get_current_user)
+    current_user: Optional[CurrentUser] = Depends(get_optional_user)
 ):
     """
     Get financial summary for a form
@@ -468,7 +468,7 @@ async def get_financial_summary(
         if not prisma.is_connected():
             await prisma.connect()
         
-        # Verify form ownership
+        # Verify form exists
         form = await prisma.dprform.find_unique(
             where={"id": form_id}
         )
@@ -479,7 +479,8 @@ async def get_financial_summary(
                 detail=f"Form with ID {form_id} not found"
             )
         
-        if form.userId != current_user.id:
+        # Only check ownership if user is authenticated
+        if current_user and form.userId != current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="You don't have permission to access this form"
@@ -495,6 +496,11 @@ async def get_financial_summary(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="No financial summary found. Please calculate projections first."
             )
+        
+        if current_user:
+            logger.info(f"Financial summary for form {form_id} retrieved by user {current_user.id}")
+        else:
+            logger.info(f"Financial summary for form {form_id} retrieved without authentication (PDF generation)")
         
         return FinancialSummaryResponse(
             form_id=form_id,

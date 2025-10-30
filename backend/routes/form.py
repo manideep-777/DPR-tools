@@ -5,7 +5,7 @@ Handles form creation, update, and retrieval operations
 from fastapi import APIRouter, Depends, HTTPException, status
 from prisma import Prisma
 import json
-from middleware.auth import get_current_user, CurrentUser
+from middleware.auth import get_current_user, get_optional_user, CurrentUser
 from models.form_models import (
     FormCreateRequest,
     FormCreateResponse,
@@ -38,7 +38,7 @@ from models.form_models import (
     GeneratedContentListResponse,
     SectionRegenerateRequest
 )
-from typing import Union
+from typing import Union, Optional
 import logging
 from utils.ai_service import ai_service, AVAILABLE_SECTIONS
 from datetime import datetime, timezone
@@ -230,7 +230,7 @@ async def get_form(
 @router.get("/{form_id}/complete", response_model=CompleteFormResponse)
 async def get_complete_form(
     form_id: int,
-    current_user: CurrentUser = Depends(get_current_user)
+    current_user: Optional[CurrentUser] = Depends(get_optional_user)
 ):
     """
     Retrieve complete DPR form data including all sections
@@ -247,16 +247,18 @@ async def get_complete_form(
     
     Sections that haven't been filled yet will be null in the response.
     
+    Authentication is optional - PDF generation can access without token.
+    
     Args:
         form_id: ID of the form to retrieve
-        current_user: Authenticated user from JWT token
+        current_user: Optional authenticated user from JWT token
         
     Returns:
         CompleteFormResponse with all form data and sections
         
     Raises:
         404: If form not found
-        403: If user doesn't own the form
+        403: If authenticated user doesn't own the form
         500: If database error occurs
     """
     try:
@@ -287,8 +289,8 @@ async def get_complete_form(
                 detail="Form not found"
             )
         
-        # Check if user owns the form
-        if form.userId != current_user.id:
+        # Check if user owns the form (only if authenticated)
+        if current_user and form.userId != current_user.id:
             logger.warning(f"User {current_user.id} attempted to access form {form_id} owned by user {form.userId}")
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -411,7 +413,10 @@ async def get_complete_form(
                 "generated_at": generated_at
             }
         
-        logger.info(f"Complete form {form_id} retrieved by user {current_user.id} ({current_user.email})")
+        if current_user:
+            logger.info(f"Complete form {form_id} retrieved by user {current_user.id} ({current_user.email})")
+        else:
+            logger.info(f"Complete form {form_id} retrieved without authentication (PDF generation)")
 
         
         return CompleteFormResponse(**response_data)
