@@ -1067,7 +1067,7 @@
           14,
           15
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -1075,7 +1075,7 @@
             "description": "Develop the main structure and layout for the DPR preview page using Next.js components.",
             "dependencies": [],
             "details": "Implement the basic UI structure with placeholders for data. Use styled-components or Tailwind CSS for styling. Ensure responsiveness.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Manually inspect the component in the browser to ensure the layout is correct."
           },
           {
@@ -1084,7 +1084,7 @@
             "description": "Implement API call to fetch the initial form data from the backend.",
             "dependencies": [],
             "details": "Use `axios` or `fetch` to make a GET request to the `/form/{form_id}` endpoint. Handle loading and error states. Store the fetched data in component state.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Mock the API response and verify that the component renders the data correctly."
           },
           {
@@ -1093,7 +1093,7 @@
             "description": "Implement API call to fetch the AI-generated content for the DPR.",
             "dependencies": [],
             "details": "Make a GET request to the `/ai/content/{form_id}` endpoint. Handle loading and error states. Store the fetched data in component state.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Mock the API response and verify that the component renders the AI-generated content correctly."
           },
           {
@@ -1102,7 +1102,7 @@
             "description": "Implement API call to fetch the financial projections data.",
             "dependencies": [],
             "details": "Make a GET request to the `/financials/{form_id}` endpoint. Handle loading and error states. Store the fetched data in component state.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Mock the API response and verify that the component renders the financial projections correctly."
           },
           {
@@ -1111,7 +1111,7 @@
             "description": "Implement API call to fetch the matched schemes data.",
             "dependencies": [],
             "details": "Make a GET request to the `/schemes/{form_id}` endpoint. Handle loading and error states. Store the fetched data in component state.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Mock the API response and verify that the component renders the matched schemes correctly."
           },
           {
@@ -1126,7 +1126,7 @@
               5
             ],
             "details": "Render the fetched data using appropriate UI elements. Implement input fields and controls for editing sections. Implement functionality to regenerate content using AI.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Manually test the editing functionality and verify that changes are reflected correctly. Verify that regenerating content works as expected."
           }
         ]
@@ -1174,7 +1174,7 @@
     ],
     "metadata": {
       "created": "2025-10-28T08:08:47.483Z",
-      "updated": "2025-10-30T05:57:38.091Z",
+      "updated": "2025-10-30T08:08:49.170Z",
       "description": "Tasks for master context"
     }
   }
