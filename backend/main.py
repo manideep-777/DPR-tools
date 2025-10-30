@@ -15,6 +15,7 @@ from routes.form import router as form_router
 from routes.financial import router as financial_router
 from routes.analytics import router as analytics_router
 from routes.schemes import router as schemes_router
+from routes.pdf import router as pdf_router
 
 # Prisma client instance
 prisma = Prisma()
@@ -68,6 +69,7 @@ app.include_router(form_router, prefix="/api")
 app.include_router(financial_router, prefix="/api")
 app.include_router(analytics_router, prefix="/api")
 app.include_router(schemes_router, prefix="/api")
+app.include_router(pdf_router, prefix="/api")
 
 
 @app.exception_handler(RequestValidationError)

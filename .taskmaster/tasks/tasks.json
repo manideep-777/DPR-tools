@@ -683,7 +683,7 @@
           14,
           15
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -691,7 +691,7 @@
             "description": "Create the `/pdf/generate/{form_id}` (POST) endpoint using FastAPI to handle PDF generation requests.",
             "dependencies": [],
             "details": "Define the endpoint using FastAPI, including request validation and error handling. Ensure proper authentication and authorization are in place using JWT middleware.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Send a POST request to the endpoint with a valid form ID and JWT token. Verify that the endpoint returns a success response."
           },
           {
@@ -700,7 +700,7 @@
             "description": "Retrieve form data, AI-generated content, financial projections, and matched schemes based on the form ID.",
             "dependencies": [],
             "details": "Fetch data from the database using Prisma based on the provided form ID. This includes retrieving form details, AI-generated content, financial projections, and matched schemes. Handle cases where data is missing.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Create mock data for form, AI content, financial projections, and schemes. Verify that the retrieval logic correctly fetches and combines this data."
           },
           {
@@ -711,7 +711,7 @@
               2
             ],
             "details": "Create an HTML template with placeholders for the retrieved data. Populate the template with the actual data to generate the final HTML content for the PDF.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Manually inspect the generated HTML to ensure that the data is correctly placed within the template and the overall structure is valid."
           },
           {
@@ -722,7 +722,7 @@
               3
             ],
             "details": "Use a library like WeasyPrint or ReportLab to convert the HTML content to PDF format. Handle any potential errors during the conversion process.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify that the generated PDF document accurately reflects the content and formatting of the HTML template."
           },
           {
@@ -733,7 +733,7 @@
               4
             ],
             "details": "Use the Cloudinary API to upload the PDF file. Handle authentication and error handling during the upload process. Store the Cloudinary URL for later use.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify that the PDF document is successfully uploaded to Cloudinary and that the returned URL is valid and accessible."
           },
           {
@@ -744,7 +744,7 @@
               5
             ],
             "details": "Create a new record in the `pdf_documents` table using Prisma to store the PDF metadata. Include the Cloudinary URL, form ID, and any other relevant information.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify that the PDF metadata is correctly saved to the `pdf_documents` table and that all fields are populated with the correct values."
           },
           {
@@ -755,7 +755,7 @@
               6
             ],
             "details": "Return the Cloudinary URL as part of the API response. Ensure that the response is properly formatted and includes any necessary headers.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify that the API response includes the correct Cloudinary URL and that the frontend can successfully access the PDF document using this URL."
           }
         ]
@@ -1174,7 +1174,7 @@
     ],
     "metadata": {
       "created": "2025-10-28T08:08:47.483Z",
-      "updated": "2025-10-30T08:08:49.170Z",
+      "updated": "2025-10-30T09:08:10.408Z",
       "description": "Tasks for master context"
     }
   }
