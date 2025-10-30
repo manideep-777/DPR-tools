@@ -84,8 +84,9 @@ export async function updateFormSection(
 /**
  * Delete a form
  */
-export async function deleteForm(formId: number): Promise<void> {
-  await apiClient.delete(`/form/${formId}`);
+export async function deleteForm(formId: number): Promise<{ success: boolean; message: string }> {
+  const response = await apiClient.delete(`/form/${formId}`);
+  return response.data;
 }
 
 /**

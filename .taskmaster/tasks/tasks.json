@@ -891,8 +891,58 @@
           18,
           11
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create User Dashboard Component",
+            "description": "Set up the basic structure and layout for the user dashboard component in Next.js.",
+            "dependencies": [],
+            "details": "Create a new component file (e.g., `UserDashboard.js`) and define the basic HTML structure with placeholders for user statistics and DPR form list. Use CSS modules for styling.",
+            "status": "done",
+            "testStrategy": null
+          },
+          {
+            "id": 2,
+            "title": "Fetch User Statistics from API",
+            "description": "Implement the data fetching logic to retrieve user statistics from the `/analytics/user-stats` endpoint.",
+            "dependencies": [],
+            "details": "Use `useEffect` hook to fetch data from the `/analytics/user-stats` endpoint using `axios` or `fetch`. Store the fetched data in a state variable.",
+            "status": "done",
+            "testStrategy": "Verify that the correct user statistics are fetched and stored in the component's state by logging the state to the console."
+          },
+          {
+            "id": 3,
+            "title": "Fetch Recent DPR Forms from API",
+            "description": "Implement the data fetching logic to retrieve the list of recent DPR forms from the `/user/forms` endpoint.",
+            "dependencies": [],
+            "details": "Use `useEffect` hook to fetch data from the `/user/forms` endpoint using `axios` or `fetch`. Store the fetched data in a state variable.",
+            "status": "done",
+            "testStrategy": "Verify that the correct list of DPR forms is fetched and stored in the component's state by logging the state to the console."
+          },
+          {
+            "id": 4,
+            "title": "Display User Statistics",
+            "description": "Render the fetched user statistics in a user-friendly format within the dashboard component.",
+            "dependencies": [
+              2
+            ],
+            "details": "Use JSX to display the user statistics data. Format the data appropriately (e.g., using number formatting or date formatting).",
+            "status": "done",
+            "testStrategy": "Visually inspect the dashboard to ensure that the user statistics are displayed correctly and in the expected format."
+          },
+          {
+            "id": 5,
+            "title": "Display Recent DPR Forms List",
+            "description": "Render the fetched list of recent DPR forms in a user-friendly format within the dashboard component.",
+            "dependencies": [
+              3
+            ],
+            "details": "Use JSX to display the list of DPR forms. Consider using a table or list to display the data. Include relevant information such as form ID, submission date, and status.",
+            "status": "done",
+            "testStrategy": "Visually inspect the dashboard to ensure that the list of DPR forms is displayed correctly and includes all the necessary information."
+          }
+        ]
       },
       {
         "id": 20,
@@ -1124,7 +1174,7 @@
     ],
     "metadata": {
       "created": "2025-10-28T08:08:47.483Z",
-      "updated": "2025-10-29T15:56:47.279Z",
+      "updated": "2025-10-30T02:54:45.457Z",
       "description": "Tasks for master context"
     }
   }

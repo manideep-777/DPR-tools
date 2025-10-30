@@ -1613,3 +1613,90 @@ async def generate_single_section(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to generate AI content: {str(e)}"
         )
+
+
+@router.delete("/{form_id}")
+async def delete_form(
+    form_id: int,
+    current_user: CurrentUser = Depends(get_current_user)
+):
+    """
+    Delete a DPR form (only the owner can delete)
+    
+    Args:
+        form_id: ID of the form to delete
+        current_user: Authenticated user from JWT token
+        
+    Returns:
+        Success message
+        
+    Raises:
+        401: If user not authenticated
+        403: If user is not the owner of the form
+        404: If form not found
+        500: If database error occurs
+    """
+    try:
+        # Connect to database if not connected
+        if not prisma.is_connected():
+            await prisma.connect()
+        
+        # Check if form exists and belongs to the user
+        form = await prisma.dprform.find_unique(
+            where={"id": form_id}
+        )
+        
+        if not form:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Form with ID {form_id} not found"
+            )
+        
+        # Verify ownership
+        if form.userId != current_user.id:
+            logger.warning(
+                f"User {current_user.id} ({current_user.email}) attempted to delete form {form_id} "
+                f"owned by user {form.userId}"
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have permission to delete this form"
+            )
+        
+        # Delete related data first (cascading delete might not be configured)
+        # Delete generated content
+        await prisma.generatedcontent.delete_many(
+            where={"formId": form_id}
+        )
+        
+        # Delete financial projections
+        await prisma.financialprojection.delete_many(
+            where={"formId": form_id}
+        )
+        
+        # Delete financial summary
+        await prisma.financialsummary.delete_many(
+            where={"formId": form_id}
+        )
+        
+        # Finally, delete the form itself
+        await prisma.dprform.delete(
+            where={"id": form_id}
+        )
+        
+        logger.info(f"Form {form_id} deleted successfully by user {current_user.id} ({current_user.email})")
+        
+        return {
+            "success": True,
+            "message": "Form deleted successfully",
+            "form_id": form_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting form {form_id}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete form: {str(e)}"
+        )
