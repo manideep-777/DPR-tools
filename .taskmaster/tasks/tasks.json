@@ -613,7 +613,7 @@
         "dependencies": [
           10
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -621,7 +621,7 @@
             "description": "Create the `/schemes/match/{form_id}` (POST) endpoint using FastAPI to handle scheme matching requests.",
             "dependencies": [],
             "details": "Define the route, request body (form_id), and response structure using FastAPI. Implement JWT authentication middleware to protect the endpoint.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Send a POST request to `/schemes/match/{form_id}` with a valid JWT token and a sample form_id. Verify that the endpoint returns a 200 OK response."
           },
           {
@@ -632,7 +632,7 @@
               1
             ],
             "details": "Access the request body using FastAPI's request object and parse the JSON data. Handle potential errors during data extraction.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Send a POST request with different types of form data (valid, invalid, missing fields). Verify that the data is extracted correctly and errors are handled gracefully."
           },
           {
@@ -643,7 +643,7 @@
               2
             ],
             "details": "Access the sector information from the extracted form data. Query the database of government schemes and filter based on matching sectors. Handle cases where the sector is not specified or invalid.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Create test cases with different sector values in the form data. Verify that the correct schemes are filtered based on the sector."
           },
           {
@@ -655,7 +655,7 @@
               3
             ],
             "details": "Access the investment range and state information from the extracted form data. Query the database of government schemes and filter based on matching investment ranges and states. Handle cases where the investment range or state is not specified or invalid.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Create test cases with different investment range and state values in the form data. Verify that the correct schemes are filtered based on the investment range and state."
           },
           {
@@ -666,7 +666,7 @@
               4
             ],
             "details": "Implement the ranking algorithm based on the criteria defined in the PRD. Sort the filtered schemes based on the ranking score. Return a list of the top-ranked schemes in the response.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Create test cases with different sets of matching schemes. Verify that the schemes are ranked correctly based on the ranking algorithm and the top-ranked schemes are returned."
           }
         ]
@@ -1051,7 +1051,7 @@
           20,
           12
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -1174,7 +1174,7 @@
     ],
     "metadata": {
       "created": "2025-10-28T08:08:47.483Z",
-      "updated": "2025-10-30T02:54:45.457Z",
+      "updated": "2025-10-30T05:57:38.091Z",
       "description": "Tasks for master context"
     }
   }

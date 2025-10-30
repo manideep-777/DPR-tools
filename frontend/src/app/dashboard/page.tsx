@@ -8,7 +8,7 @@ import { useAuthStore } from "@/lib/store/authStore";
 import { useToast } from "@/hooks/use-toast";
 import { createForm, getUserForms, deleteForm } from "@/lib/api/form";
 import { getUserStats, UserStats } from "@/lib/api/analytics";
-import { FileText, User, Mail, Phone, Building, MapPin, Plus, Loader2, BarChart3, Clock, CheckCircle2, FileEdit, Eye, Trash2 } from "lucide-react";
+import { FileText, User, Mail, Phone, Building, MapPin, Plus, Loader2, BarChart3, Clock, CheckCircle2, FileEdit, Eye, Trash2, Sparkles, Building2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -319,6 +319,28 @@ export default function DashboardPage() {
               <FileText className="mr-2 h-4 w-4" />
               View My DPRs ({userForms.length})
             </Button>
+            <div className="pt-3 border-t">
+              <p className="text-sm font-medium mb-2 text-muted-foreground">Government Schemes</p>
+              <div className="space-y-2">
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
+                  size="lg"
+                  onClick={() => router.push("/schemes")}
+                >
+                  <Building2 className="mr-2 h-4 w-4" />
+                  Browse All Schemes
+                </Button>
+                <Button 
+                  className="w-full" 
+                  size="lg"
+                  onClick={() => router.push("/schemes/ai-match")}
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  AI Suggested Schemes
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
