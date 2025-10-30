@@ -363,6 +363,15 @@ class TimelineDetailsResponse(BaseModel):
         from_attributes = True
 
 
+class GeneratedContentSummary(BaseModel):
+    """Summary model for generated content in complete form response"""
+    sections: Dict[str, str]  # section_name -> generated_text mapping
+    generated_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+
 class CompleteFormResponse(BaseModel):
     """Response model for complete form data with all sections"""
     # Main form data
@@ -383,6 +392,7 @@ class CompleteFormResponse(BaseModel):
     cost_details: Optional[CostDetailsResponse] = None
     staffing_details: Optional[StaffingDetailsResponse] = None
     timeline_details: Optional[TimelineDetailsResponse] = None
+    generated_content: Optional[GeneratedContentSummary] = None
     
     class Config:
         from_attributes = True
@@ -474,6 +484,21 @@ class AIGenerationRequest(BaseModel):
             "example": {
                 "sections": ["executive_summary", "market_analysis"],
                 "regenerate": False
+            }
+        }
+
+
+class SectionRegenerateRequest(BaseModel):
+    """Request model for regenerating a single section with custom prompt"""
+    custom_prompt: Optional[str] = Field(
+        None,
+        description="Custom prompt or instructions for regenerating the section"
+    )
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "custom_prompt": "Make it more detailed and include market statistics"
             }
         }
 

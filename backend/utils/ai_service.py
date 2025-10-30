@@ -49,13 +49,14 @@ class AIService:
         """Get the name of the AI model being used"""
         return self.model_name if self.model is not None else "unknown"
     
-    def generate_section(self, section_name: str, form_data: Dict) -> Optional[str]:
+    def generate_section(self, section_name: str, form_data: Dict, custom_prompt: Optional[str] = None) -> Optional[str]:
         """
         Generate content for a specific section using form data
         
         Args:
             section_name: Name of the section to generate
             form_data: Dictionary containing all form data for context
+            custom_prompt: Optional custom instructions for generation
         
         Returns:
             Generated text content or None if generation fails
@@ -70,7 +71,7 @@ class AIService:
         
         try:
             # Build prompt based on section and form data
-            prompt = self._build_prompt(section_name, form_data)
+            prompt = self._build_prompt(section_name, form_data, custom_prompt)
             
             # Generate content using Gemini
             logger.info(f"Generating {section_name} for form {form_data.get('business_name', 'Unknown')}")
@@ -86,19 +87,20 @@ class AIService:
             logger.error(f"Error generating {section_name}: {str(e)}")
             return None
     
-    def _build_prompt(self, section_name: str, form_data: Dict) -> str:
+    def _build_prompt(self, section_name: str, form_data: Dict, custom_prompt: Optional[str] = None) -> str:
         """
         Build a detailed prompt for content generation
         
         Args:
             section_name: Section to generate
             form_data: Complete form data
+            custom_prompt: Optional custom instructions to append
         
         Returns:
             Formatted prompt string
         """
         business_name = form_data.get("business_name", "the business")
-        
+            
         # Extract relevant data
         entrepreneur = form_data.get("entrepreneur_details", {})
         business = form_data.get("business_details", {})
@@ -126,6 +128,10 @@ Entrepreneur Background:
 - Experience: {entrepreneur.get('years_of_experience', 'Not specified')} years
 
 """
+        
+        # Add custom prompt instructions if provided
+        if custom_prompt:
+            base_context += f"\n**SPECIAL INSTRUCTIONS FROM USER:**\n{custom_prompt}\n\n"
         
         # Section-specific prompts
         prompts = {

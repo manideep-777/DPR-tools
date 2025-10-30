@@ -35,7 +35,8 @@ from models.form_models import (
     AIGenerationRequest,
     AIGenerationResponse,
     GeneratedSectionResponse,
-    GeneratedContentListResponse
+    GeneratedContentListResponse,
+    SectionRegenerateRequest
 )
 from typing import Union
 import logging
@@ -274,7 +275,8 @@ async def get_complete_form(
                 "revenueAssumptions": True,
                 "costDetails": True,
                 "staffingDetails": True,
-                "timelineDetails": True
+                "timelineDetails": True,
+                "generatedContents": True
             }
         )
         
@@ -394,7 +396,23 @@ async def get_complete_form(
                 commercial_production_start_month=form.timelineDetails.commercialProductionStartMonth
             )
         
+        # Add generated content if exists
+        if form.generatedContents and len(form.generatedContents) > 0:
+            # Convert array of generated content to sections object
+            sections = {}
+            generated_at = None
+            for content in form.generatedContents:
+                sections[content.sectionName] = content.generatedText
+                if generated_at is None or content.generatedAt > generated_at:
+                    generated_at = content.generatedAt
+            
+            response_data["generated_content"] = {
+                "sections": sections,
+                "generated_at": generated_at
+            }
+        
         logger.info(f"Complete form {form_id} retrieved by user {current_user.id} ({current_user.email})")
+
         
         return CompleteFormResponse(**response_data)
         
@@ -1351,10 +1369,17 @@ async def get_generated_content(
             )
         
         # Get all generated content for the form
-        generated_content = await prisma.generatedcontent.find_many(
-            where={"formId": form_id},
-            order={"sectionName": "asc"}
+        all_generated_content = await prisma.generatedcontent.find_many(
+            where={"formId": form_id}
         )
+        
+        # Filter to get only the latest version of each section
+        latest_sections = {}
+        for content in all_generated_content:
+            section_name = content.sectionName
+            # Keep the version with the highest versionNumber for each section
+            if section_name not in latest_sections or content.versionNumber > latest_sections[section_name].versionNumber:
+                latest_sections[section_name] = content
         
         sections = [
             GeneratedSectionResponse(
@@ -1365,7 +1390,7 @@ async def get_generated_content(
                 version_number=content.versionNumber,
                 generated_at=content.generatedAt
             )
-            for content in generated_content
+            for content in latest_sections.values()
         ]
         
         return GeneratedContentListResponse(
@@ -1397,6 +1422,7 @@ async def get_generated_content(
 async def generate_single_section(
     form_id: int,
     section: str,
+    request: SectionRegenerateRequest = None,
     current_user: dict = Depends(get_current_user)
 ):
     """
@@ -1408,6 +1434,9 @@ async def generate_single_section(
     Path Parameters:
     - form_id: The ID of the DPR form
     - section: The section name (e.g., 'executive_summary', 'market_analysis')
+    
+    Request Body (optional):
+    - custom_prompt: Custom instructions for regenerating the section
     
     Returns:
     - Generated content with metadata for the requested section
@@ -1515,8 +1544,9 @@ async def generate_single_section(
         )
         
         try:
-            # Generate content for the single section
-            generated_text = ai_service.generate_section(section, form_data)
+            # Generate content for the single section with optional custom prompt
+            custom_prompt = request.custom_prompt if request else None
+            generated_text = ai_service.generate_section(section, form_data, custom_prompt)
             
             if not generated_text:
                 raise HTTPException(
